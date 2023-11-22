@@ -34,10 +34,10 @@ class Scanner:
     digits: Set[str] = set(string.digits)
     letters: Set[str] = set(string.ascii_letters)
     alphanumerics: Set[str] = digits.union(letters)
-    symbols: Set[str] = {';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-', '*', '/', '=', '<'}
+    symbols: Set[str] = {';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-', '*', '/', '=', '<', '=='}
     whitespaces: Set[str] = {' ', '\n', '\r', '\t', '\v', '\f'}
     valid_chars: Set[str] = alphanumerics.union(symbols, whitespaces)
-    keywords = {"if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"}
+    keywords = {"if", "else", "void", "int", "while", "break", "return"}
 
     def __init__(self):
         self.transitions: list[Transition] = []
