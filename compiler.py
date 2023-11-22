@@ -39,7 +39,6 @@ class Scanner:
     valid_chars: Set[str] = alphanumerics.union(symbols, whitespaces)
     keywords = {"if", "else", "void", "int", "while", "break", "return"}
 
-
     def __init__(self):
         self.transitions: list[Transition] = []
         self.state: list[State] = []
