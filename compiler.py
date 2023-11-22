@@ -39,14 +39,6 @@ class Scanner:
     valid_chars: Set[str] = alphanumerics.union(symbols, whitespaces)
     keywords = {"if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"}
 
-    # symbol table keywords
-    NUM: str = "NUM"
-    ID: str = "ID"
-    KEYWORD: str = "KEYWORD"
-    SYMBOL: str = "SYMBOL"
-    COMMENT: str = "COMMENT"
-    WHITESPACE: str = "WHITESPACE"
-
     def __init__(self):
         self.transitions: list[Transition] = []
         self.state: list[State] = []
@@ -57,7 +49,9 @@ class Scanner:
             self.state.append(State(i))
 
     def generateTransitons(self):
-
+        self.state[0].listTransiton.append(Transition(self.state[0], self.state[1], list(self.digits)))
+        self.state[1].listTransiton.append(Transition(self.state[1], self.state[1], list(self.digits)))
+        self.state[1].isFinal = True
 
     def createTransitons(self):
         pass
