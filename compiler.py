@@ -29,7 +29,6 @@ class Scanner:
         self._token_buffer: List[str] = []
 
 
-
 class Compiler:
     def __init__(self):
         scanner = Scanner()
@@ -37,4 +36,3 @@ class Compiler:
 
 if __name__ == '__main__':
     compiler = Compiler()
-    compiler.__init__()
