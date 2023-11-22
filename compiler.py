@@ -4,11 +4,12 @@ from typing import List, Optional, Set, Dict, Tuple
 
 
 class State:
-    def __int__(self, name: int):
+    def __init__(self, name: id):
         self.id = name
         self.listTransiton: List[Transition] = []
         self.isFinal = False
         self.isLookAhead = False
+        self.hasTransition = False
 
 
 class Transition:
@@ -28,15 +29,16 @@ class Error:
 
 class Scanner:
     # states
-    _EOF = None
-    _all_chars: Set[str] = set(chr(i) for i in range(128))
-    _digits: Set[str] = set(string.digits)
-    _letters: Set[str] = set(string.ascii_letters)
-    _alphanumerics: Set[str] = _digits.union(_letters)
-    _symbols: Set[str] = {';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-', '*', '/', '=', '<'}
-    _whitespaces: Set[str] = {' ', '\n', '\r', '\t', '\v', '\f'}
-    _valid_chars: Set[str] = _alphanumerics.union(_symbols, _whitespaces)
-    _keywords = {"if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"}
+    EOF = None
+    all_chars: Set[str] = set(chr(i) for i in range(128))
+    digits: Set[str] = set(string.digits)
+    letters: Set[str] = set(string.ascii_letters)
+    alphanumerics: Set[str] = digits.union(letters)
+    symbols: Set[str] = {';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-', '*', '/', '=', '<'}
+    whitespaces: Set[str] = {' ', '\n', '\r', '\t', '\v', '\f'}
+    valid_chars: Set[str] = alphanumerics.union(symbols, whitespaces)
+    keywords = {"if", "else", "void", "int", "while", "break", "switch", "default", "case", "return", "endif"}
+
     # symbol table keywords
     NUM: str = "NUM"
     ID: str = "ID"
@@ -46,6 +48,18 @@ class Scanner:
     WHITESPACE: str = "WHITESPACE"
 
     def __init__(self):
+        self.transitions: list[Transition] = []
+        self.state: list[State] = []
+
+    def createStates(self):
+        self.state = []
+        for i in range(19):
+            self.state.append(State(i))
+
+    def generateTransitons(self):
+
+
+    def createTransitons(self):
         pass
 
 
