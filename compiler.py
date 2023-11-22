@@ -4,20 +4,26 @@ from typing import List, Optional, Set, Dict, Tuple
 
 
 class State:
-    def __int__(self):
-        pass
-
+    def __int__(self, name: int):
+        self.id = name
+        self.listTransiton: List[Transition] = []
+        self.isFinal = False
+        self.isLookAhead = False
 
 
 class Transition:
-    def __init__(self):
-        pass
+    def __init__(self, state1: State, state2: State, move: list[str]):
+        self.start = state1
+        self.end = state2
+        self.moveWith: list[str] = move
 
 
 class Error:
-
-    def __init__(self):
-        pass
+    def __init__(self, TYPE: Enum, title: str, content: str, line: int):
+        self.TYPE = TYPE
+        self.title = title
+        self.line = line
+        self.content = content
 
 
 class Scanner:
@@ -39,11 +45,8 @@ class Scanner:
     COMMENT: str = "COMMENT"
     WHITESPACE: str = "WHITESPACE"
 
-    def __init__(self, buffer_size=1024):
-        self._input_file = open("input.txt", mode="r")
-        self._buffer_size = buffer_size
-        self._buffer: List[Optional[str]] = []
-        self._token_buffer: List[str] = []
+    def __init__(self):
+        pass
 
 
 class Compiler:
