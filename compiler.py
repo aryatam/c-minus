@@ -41,6 +41,7 @@ class Scanner:
     end: Set[str] = symbols.union(whitespaces, {EOF})
 
     def __init__(self):
+        self.symbol_table = {}
         self.transitions: list[Transition] = []
         self.state: list[State] = []
         self.tokens: list[str] = []
@@ -52,11 +53,21 @@ class Scanner:
         self.line = 1
         self.errors_dict: Dict[int, List[Error]] = {}
 
-    def nextChar(self):
+    def addSymbol(self):
 
-        char = self.file_contents[self.pointer]
-        self.pointer = self.pointer + 1
-        return char
+
+    def nextChar(self):
+        if self.pointer >= len(self.file_contents):
+            return None
+        else:
+            char = self.file_contents[self.pointer]
+            self.pointer = self.pointer + 1
+            return char
+
+    def symbolTable(self):
+        self.symbol_table: Dict[str, List[Optional]] = {}
+        for keyword in Scanner.keywords:
+            self.symbol_table[keyword] = [len(self.symbol_table) + 1]
 
     def createStates(self):
         self.state = []
