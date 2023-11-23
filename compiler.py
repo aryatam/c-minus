@@ -44,7 +44,7 @@ class Scanner:
         self.symbol_table = {}
         self.transitions: list[Transition] = []
         self.state: list[State] = []
-        self.tokens: list[str] = []
+        self.matchStrings: list[str] = []
         self.inputCode = open("input.txt", mode="r")
         self.file_contents = ""
         self.file_contents = self.inputCode.read()
