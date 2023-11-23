@@ -43,6 +43,20 @@ class Scanner:
     def __init__(self):
         self.transitions: list[Transition] = []
         self.state: list[State] = []
+        self.tokens: list[str] = []
+        self.inputCode = open("input.txt", mode="r")
+        self.file_contents = ""
+        self.file_contents = self.inputCode.read()
+
+        self.pointer = 0
+        self.line = 1
+        self.errors_dict: Dict[int, List[Error]] = {}
+
+    def nextChar(self):
+
+        char = self.file_contents[self.pointer]
+        self.pointer = self.pointer + 1
+        return char
 
     def createStates(self):
         self.state = []
@@ -110,7 +124,6 @@ class Scanner:
         self.state[18].isFinal = True
 
         # read the input but don't use it its look ahead
-
         self.state[8].isLookAhead = True
         self.state[9].isLookAhead = True
         self.state[11].isLookAhead = True
@@ -118,12 +131,19 @@ class Scanner:
         self.state[15].isLookAhead = True
         self.state[18].isLookAhead = True
 
+    def initialize_symbol_table(self):
+        pass
+
 
 class Compiler:
+    # we run the compiler to give us token by token, and we write it on token file
+    def execute(self):
+        pass
 
     def __init__(self):
-        pass
+        self.scanner = Scanner()
 
 
 if __name__ == '__main__':
     compiler = Compiler()
+    compiler.execute()
