@@ -54,7 +54,7 @@ class Scanner:
         self.errors_dict: Dict[int, List[Error]] = {}
 
     def addSymbol(self):
-
+        pass
 
     def nextChar(self):
         if self.pointer >= len(self.file_contents):
