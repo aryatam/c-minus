@@ -49,6 +49,7 @@ class Scanner:
         self.file_contents = ""
         self.file_contents = self.inputCode.read()
 
+        self.current_char: Optional[str] = None
         self.pointer = 0
         self.line = 1
         self.errors_dict: Dict[int, List[Error]] = {}
@@ -143,6 +144,7 @@ class Scanner:
         self.state[18].isLookAhead = True
 
     def initialize_symbol_table(self):
+
         pass
 
 
