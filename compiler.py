@@ -68,6 +68,9 @@ class Scanner:
             if self.matchStrings in self.keywords:
                 return "KEYWORD", self.matchStrings
             else:
+                token: str = self.matchStrings
+                if token not in self.symbol_table:
+                    self.symbol_table[token] = [len(self.symbol_table) + 1]
                 return "ID", self.matchStrings
         elif self.current_state == 3:
             return "SYMBOL", self.matchStrings
@@ -125,29 +128,55 @@ class Scanner:
                     if self.current_char in transiton.moveWith:
                         self.current_state = transiton.end
                         break
-
                 else:
+                    if not self.end_of_file:
+                        self.error_handler(1)
+                        self.matchStrings.clear()
+                        self.current_state = self.state[0]
+                    else:
+                        self.error_handler(2)
+                        return None
 
-
+    def add_error(self, error: Error):
+        if error.line in self.errors_dict:
+            self.errors_dict[error.line].append(error)
+        else:
+            self.errors_dict[error.line] = [error]
 
     def error_handler(self, error_type: int):
+
         if error_type == 1:
             if self.current_state.id == 7 and self.current_char == '/':
                 error = Error("Unmatched comment", None, self.line)
+                self.add_error(error)
 
             elif self.current_state.id == 1 and self.current_char in self.letters:
                 error = Error("Invalid number", None, self.line)
+                self.add_error(error)
 
             else:
                 error = Error("Invalid input", None, self.line)
+                self.add_error(error)
         elif error_type == 2:
             if self.current_state.id == 14 or self.current_state.id == 16:
                 # problem is we should give the line that we saw /* So
                 self.line = self.line - self.matchStrings.count('\n')
                 error = Error("Unclosed comment", self.matchStrings[0:6] + "...", self.line)
+                self.add_error(error)
 
-    def addSymbol(self):
-        pass
+    def write_error(self):
+        with open("lexical_errors.txt", "w") as error_file:
+            if len(self.errors_dict) == 0:
+                error_file.write("There is no lexical error.")
+            else:
+                for line_num in sorted(self.errors_dict.keys()):
+                    line = ''.join([f"({error.content}, {error.title}) " for error in self.errors_dict[line_num]])
+                    error_file.write(f"{line_num}.\t{line}\n")
+
+    def save_symbols(self):
+        with open("symbol_table.txt", mode="w") as symbol_table_file:
+            for key, value in self.symbol_table.items():
+                symbol_table_file.write(f"{value[0]}.\t{key}\n")
 
     def nextChar(self):
         if self.pointer >= len(self.file_contents):
@@ -156,11 +185,6 @@ class Scanner:
             char = self.file_contents[self.pointer]
             self.pointer = self.pointer + 1
             return char
-
-    def symbolTable(self):
-        self.symbol_table: Dict[str, List[Optional]] = {}
-        for keyword in Scanner.keywords:
-            self.symbol_table[keyword] = [len(self.symbol_table) + 1]
 
     def createStates(self):
         self.state = []
