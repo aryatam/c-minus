@@ -19,18 +19,12 @@ class Transition:
         self.moveWith: list[str] = move
 
 
-
-
-
 class Error:
 
-    def __init__(self, error_type: int, title: str, content: str, line: int):
-        self.error_type = error_type
+    def __init__(self, title: str, content: Optional[str], line: int):
         self.title = title
         self.line = line
         self.content = content
-
-    def error_handler(self):
 
 
 class Scanner:
@@ -99,6 +93,14 @@ class Scanner:
 
                 else:
                     break
+
+    def error_handler(self, error_type: int):
+        if error_type == 1:
+            if self.current_state.id == 7 and self.current_char == '/':
+                error = Error("Unmatched comment", None , self.line )
+            if self.
+        elif error_type == 2:
+            pass
 
     def addSymbol(self):
         pass
