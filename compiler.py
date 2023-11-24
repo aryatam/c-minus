@@ -1,5 +1,4 @@
 import string
-from enum import Enum
 from typing import List, Optional, Set, Dict, Tuple
 
 
@@ -13,10 +12,10 @@ class State:
 
 
 class Transition:
-    def __init__(self, state1: State, state2: State, move: list[str]):
-        self.end = state2
+    def __init__(self, state1: State, state2: State, move: Set[str]):
         self.start = state1
-        self.moveWith: list[str] = move
+        self.end = state2
+        self.moveWith: Set[str] = move
 
 
 class Error:
@@ -43,6 +42,7 @@ class Scanner:
     def __init__(self):
 
         self.symbol_table: Dict[str, List[Optional]] = {}
+
         for keyword in Scanner.keywords:
             self.symbol_table[keyword] = [len(self.symbol_table) + 1]
 
@@ -54,88 +54,95 @@ class Scanner:
         self.file_contents = ""
         self.file_contents = self.inputCode.read()
         self.end_of_file = False
+
         self.current_char: Optional[str] = None  # End of file = None
         self.pointer = 0
         self.line = 1
+
         self.errors_dict: Dict[int, List[Error]] = {}
+        self.createStates()
+        self.current_state: State = self.state[0]
+        self.generateTransitons()
+        self.setFinal_lookahead()
 
     def createToken(self) -> [Tuple[str, str]]:
-        if self.current_state == 8:
+        if self.current_state.id == 8:
             return "NUM", self.matchStrings
-        elif self.current_state == 6:
-            return None, self.matchStrings
-        elif self.current_state == 9:
-            if self.matchStrings in self.keywords:
+        elif self.current_state.id == 6:
+            return "WHITESPACE", self.matchStrings
+        elif self.current_state.id == 9:
+            matchString = ''.join(self.matchStrings)
+            if matchString in self.keywords:
                 return "KEYWORD", self.matchStrings
             else:
-                token: str = self.matchStrings
+                matchString = ''.join(self.matchStrings)
+                token: str = matchString
                 if token not in self.symbol_table:
                     self.symbol_table[token] = [len(self.symbol_table) + 1]
                 return "ID", self.matchStrings
-        elif self.current_state == 3:
+        elif self.current_state.id == 3:
             return "SYMBOL", self.matchStrings
-        elif self.current_state == 10:
+        elif self.current_state.id == 10:
             return "SYMBOL", self.matchStrings
-        elif self.current_state == 11:
+        elif self.current_state.id == 11:
             return "SYMBOL", self.matchStrings
-        elif self.current_state == 12:
+        elif self.current_state.id == 12:
             return "SYMBOL", self.matchStrings
-        elif self.current_state == 15:
+        elif self.current_state.id == 15:
             return None, self.matchStrings
-        elif self.current_state == 17:
+        elif self.current_state.id == 17:
             return "COMMENT", self.matchStrings
-        elif self.current_state == 18:
+        elif self.current_state.id == 18:
             return "KEYWORD", self.matchStrings
 
     def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
             return None
-        else:
-            self.matchStrings.clear()
-            self.current_state = self.state[0]
+        self.matchStrings.clear()
+        self.current_state = self.state[0]
+
         while True:
+
             if self.current_state.isFinal:
+
                 if self.current_state.isLookAhead:
                     self.pointer = self.pointer - 1
                     self.matchStrings = self.matchStrings[0:self.pointer]
                 if self.current_char == '\n':
                     self.line = self.line - 1
-                token = self.createToken
-                if token[0] is None:
+                token = self.createToken()
+                if token[0] in ["WHITESPACE", "Comment"]:
                     self.matchStrings.clear()
                     self.current_state = self.state[0]
-
                 else:
                     return token
 
+            self.current_char = self.nextChar()
 
+            if self.current_char == '\n':
+                self.line = self.line + 1
+
+            if self.end_of_file:
+                self.current_char = None
+
+            if self.end_of_file and self.current_state == 0:
+                return None
+
+            self.matchStrings.append(self.current_char)
+
+            for transiton in self.current_state.listTransiton:
+                # list transiton is based on prority
+                if self.current_char in transiton.moveWith:
+                    self.current_state = transiton.end
+                    break
             else:
-                self.current_char = self.file_contents[self.pointer]
-
-                if self.current_char == '\n':
-                    self.line = self.line + 1
-
-                if self.end_of_file:
-                    self.current_char = None
-
-                if self.end_of_file and self.current_state == 0:
-                    return None
-
-                self.matchStrings.append(self.current_char)
-
-                for transiton in self.current_state.listTransiton:
-                    # list transiton is based on prority
-                    if self.current_char in transiton.moveWith:
-                        self.current_state = transiton.end
-                        break
+                if not self.end_of_file:
+                    self.error_handler(1)
+                    self.matchStrings.clear()
+                    self.current_state = self.state[0]
                 else:
-                    if not self.end_of_file:
-                        self.error_handler(1)
-                        self.matchStrings.clear()
-                        self.current_state = self.state[0]
-                    else:
-                        self.error_handler(2)
-                        return None
+                    self.error_handler(2)
+                    return None
 
     def add_error(self, error: Error):
         if error.line in self.errors_dict:
@@ -149,14 +156,13 @@ class Scanner:
             if self.current_state.id == 7 and self.current_char == '/':
                 error = Error("Unmatched comment", None, self.line)
                 self.add_error(error)
-
             elif self.current_state.id == 1 and self.current_char in self.letters:
                 error = Error("Invalid number", None, self.line)
                 self.add_error(error)
-
             else:
                 error = Error("Invalid input", None, self.line)
                 self.add_error(error)
+
         elif error_type == 2:
             if self.current_state.id == 14 or self.current_state.id == 16:
                 # problem is we should give the line that we saw /* So
@@ -180,6 +186,7 @@ class Scanner:
 
     def nextChar(self):
         if self.pointer >= len(self.file_contents):
+            self.end_of_file = True
             return None
         else:
             char = self.file_contents[self.pointer]
@@ -187,7 +194,6 @@ class Scanner:
             return char
 
     def createStates(self):
-        self.state = []
         for i in range(19):
             self.state.append(State(i))
 
@@ -213,29 +219,29 @@ class Scanner:
         # state 3 symbol - lookahead
 
         # state 4 = , ==
-        self.state[4].listTransiton.append(Transition(self.state[4], self.state[10], list('=')))
+        self.state[4].listTransiton.append(Transition(self.state[4], self.state[10], '='))
         self.state[4].listTransiton.append(Transition(self.state[4], self.state[11],
-                                                      list(self.valid_chars.union(self.EOF - '='))))
+                                                      (self.valid_chars.union({self.EOF} - {'='}))))
         # state 5 / /* //
         self.state[5].listTransiton.append(Transition(self.state[5], self.state[12],
-                                                      list(self.valid_chars.union(self.EOF - '*', '/'))))
-        self.state[5].listTransiton.append(Transition(self.state[5], self.state[13], list('/')))
-        self.state[5].listTransiton.append(Transition(self.state[5], self.state[14], list('*')))
+                                                      (self.valid_chars.union({self.EOF}) - {'*', '/'})))
+        self.state[5].listTransiton.append(Transition(self.state[5], self.state[13], '/'))
+        self.state[5].listTransiton.append(Transition(self.state[5], self.state[14], '*'))
 
         # state 13 //
-        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], list(self.all_chars - '\n')))
-        self.state[13].listTransiton.append(Transition(self.state[13], self.state[15], list("/n" + self.EOF)))
+        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.all_chars - {'\n'}))
+        self.state[13].listTransiton.append(Transition(self.state[13], self.state[15], {"/n", self.EOF}))
 
         # state 14 /*
-        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], list(self.all_chars - '*')))
-        self.state[14].listTransiton.append(Transition(self.state[14], self.state[16], list('*')))
+        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], self.all_chars - {'*'}))
+        self.state[14].listTransiton.append(Transition(self.state[14], self.state[16], '*'))
 
         # state 16 */
-        self.state[16].listTransiton.append(Transition(self.state[16], self.state[17], list('/')))
-        self.state[16].listTransiton.append(Transition(self.state[14], self.state[16], list(self.all_chars - '/')))
+        self.state[16].listTransiton.append(Transition(self.state[16], self.state[17], '/'))
+        self.state[16].listTransiton.append(Transition(self.state[14], self.state[16], self.all_chars - {'/'}))
 
         # state 7 * the only problem is /* without /*
-        self.state[7].listTransiton.append(Transition(self.state[7], self.state[18], list(self.all_chars - '/')))
+        self.state[7].listTransiton.append(Transition(self.state[7], self.state[18], self.all_chars - {'/'}))
 
     def setFinal_lookahead(self):
         # final stages of DFA
@@ -259,20 +265,33 @@ class Scanner:
         self.state[15].isLookAhead = True
         self.state[18].isLookAhead = True
 
-    def initialize_symbol_table(self):
-
-        pass
-
 
 class Compiler:
     # we run the compiler to give us token by token, and we write it on token file
     def execute(self):
-        pass
+        tokens_dict: Dict[int, List[Optional[Tuple[str, str]]]] = {}
+        while True:
+
+            current_token = self.scanner.get_next_token()
+            if current_token is None:
+                break
+            if self.scanner.line in tokens_dict:
+                tokens_dict[self.scanner.line].append(current_token)
+            else:
+                tokens_dict[self.scanner.line] = [current_token]
+
+        tokens_file = open("tokens.txt", "w")
+        for line_num in sorted(tokens_dict.keys()):
+            line = ''.join([f"({token[0]}, {token[1]}) " for token in tokens_dict[line_num]])
+            tokens_file.write(f"{line_num}.\t{line}\n")
+
+        self.scanner.write_error()
+        self.scanner.save_symbols()
 
     def __init__(self):
         self.scanner = Scanner()
+        self.execute()
 
 
 if __name__ == '__main__':
     compiler = Compiler()
-    compiler.execute()
