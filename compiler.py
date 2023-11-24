@@ -14,17 +14,23 @@ class State:
 
 class Transition:
     def __init__(self, state1: State, state2: State, move: list[str]):
-        self.start = state1
         self.end = state2
+        self.start = state1
         self.moveWith: list[str] = move
 
 
+
+
+
 class Error:
-    def __init__(self, TYPE: Enum, title: str, content: str, line: int):
-        self.TYPE = TYPE
+
+    def __init__(self, error_type: int, title: str, content: str, line: int):
+        self.error_type = error_type
         self.title = title
         self.line = line
         self.content = content
+
+    def error_handler(self):
 
 
 class Scanner:
@@ -55,6 +61,7 @@ class Scanner:
         self.line = 1
         self.errors_dict: Dict[int, List[Error]] = {}
 
+    @property
     def get_net_token(self):
         if self.end_of_file:
             return None
@@ -84,6 +91,14 @@ class Scanner:
 
                 self.matchStrings.append(self.current_char)
 
+                for transiton in self.current_state.listTransiton:
+                    # list transiton is based on prority
+                    if self.current_char in transiton.moveWith:
+                        self.current_state = transiton.end
+                        break
+
+                else:
+                    break
 
     def addSymbol(self):
         pass
