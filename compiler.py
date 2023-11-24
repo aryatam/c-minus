@@ -2,7 +2,6 @@ import string
 from typing import List, Optional, Set, Dict, Tuple
 
 
-
 class State:
     def __init__(self, name: id):
         self.id = name
