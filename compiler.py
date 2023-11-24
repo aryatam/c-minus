@@ -97,10 +97,18 @@ class Scanner:
     def error_handler(self, error_type: int):
         if error_type == 1:
             if self.current_state.id == 7 and self.current_char == '/':
-                error = Error("Unmatched comment", None , self.line )
-            if self.
+                error = Error("Unmatched comment", None, self.line)
+
+            elif self.current_state.id == 1 and self.current_char in self.letters:
+                error = Error("Invalid number", None, self.line)
+
+            else:
+                error = Error("Invalid input", None, self.line)
         elif error_type == 2:
-            pass
+            if self.current_state.id == 14 or self.current_state.id == 16:
+                # problem is we should give the line that we saw /* So
+                self.line = self.line - self.matchStrings.count('\n')
+                error = Error("Unclosed comment", self.matchStrings[0:6] + "...", self.line)
 
     def addSymbol(self):
         pass
