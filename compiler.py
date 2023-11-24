@@ -41,7 +41,11 @@ class Scanner:
     end: Set[str] = symbols.union(whitespaces, {EOF})
 
     def __init__(self):
-        self.symbol_table = {}
+
+        self.symbol_table: Dict[str, List[Optional]] = {}
+        for keyword in Scanner.keywords:
+            self.symbol_table[keyword] = [len(self.symbol_table) + 1]
+
         self.transitions: list[Transition] = []
         self.state: list[State] = []
         self.current_state: State = None
@@ -55,8 +59,32 @@ class Scanner:
         self.line = 1
         self.errors_dict: Dict[int, List[Error]] = {}
 
-    @property
-    def get_net_token(self):
+    def createToken(self) -> [Tuple[str, str]]:
+        if self.current_state == 8:
+            return "NUM", self.matchStrings
+        elif self.current_state == 6:
+            return None, self.matchStrings
+        elif self.current_state == 9:
+            if self.matchStrings in self.keywords:
+                return "KEYWORD", self.matchStrings
+            else:
+                return "ID", self.matchStrings
+        elif self.current_state == 3:
+            return "SYMBOL", self.matchStrings
+        elif self.current_state == 10:
+            return "SYMBOL", self.matchStrings
+        elif self.current_state == 11:
+            return "SYMBOL", self.matchStrings
+        elif self.current_state == 12:
+            return "SYMBOL", self.matchStrings
+        elif self.current_state == 15:
+            return None, self.matchStrings
+        elif self.current_state == 17:
+            return "COMMENT", self.matchStrings
+        elif self.current_state == 18:
+            return "KEYWORD", self.matchStrings
+
+    def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
             return None
         else:
@@ -69,8 +97,15 @@ class Scanner:
                     self.matchStrings = self.matchStrings[0:self.pointer]
                 if self.current_char == '\n':
                     self.line = self.line - 1
+                token = self.createToken
+                if token[0] is None:
+                    self.matchStrings.clear()
+                    self.current_state = self.state[0]
 
-                    # set token later
+                else:
+                    return token
+
+
             else:
                 self.current_char = self.file_contents[self.pointer]
 
@@ -81,7 +116,7 @@ class Scanner:
                     self.current_char = None
 
                 if self.end_of_file and self.current_state == 0:
-                    return None  # no token
+                    return None
 
                 self.matchStrings.append(self.current_char)
 
@@ -92,7 +127,8 @@ class Scanner:
                         break
 
                 else:
-                    break
+
+
 
     def error_handler(self, error_type: int):
         if error_type == 1:
