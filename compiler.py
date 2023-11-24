@@ -44,15 +44,46 @@ class Scanner:
         self.symbol_table = {}
         self.transitions: list[Transition] = []
         self.state: list[State] = []
+        self.current_state: State = None
         self.matchStrings: list[str] = []
         self.inputCode = open("input.txt", mode="r")
         self.file_contents = ""
         self.file_contents = self.inputCode.read()
-
-        self.current_char: Optional[str] = None
+        self.end_of_file = False
+        self.current_char: Optional[str] = None  # End of file = None
         self.pointer = 0
         self.line = 1
         self.errors_dict: Dict[int, List[Error]] = {}
+
+    def get_net_token(self):
+        if self.end_of_file:
+            return None
+        else:
+            self.matchStrings.clear()
+            self.current_state = self.state[0]
+        while True:
+            if self.current_state.isFinal:
+                if self.current_state.isLookAhead:
+                    self.pointer = self.pointer - 1
+                    self.matchStrings = self.matchStrings[0:self.pointer]
+                if self.current_char == '\n':
+                    self.line = self.line - 1
+
+                    # set token later
+            else:
+                self.current_char = self.file_contents[self.pointer]
+
+                if self.current_char == '\n':
+                    self.line = self.line + 1
+
+                if self.end_of_file:
+                    self.current_char = None
+
+                if self.end_of_file and self.current_state == 0:
+                    return None  # no token
+
+                self.matchStrings.append(self.current_char)
+
 
     def addSymbol(self):
         pass
