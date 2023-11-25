@@ -102,14 +102,14 @@ class Scanner:
         self.current_state = self.state[0]
 
         while True:
-
+            print(self.line)
             if self.current_state.isFinal:
 
                 if self.current_state.isLookAhead:
+                    self.matchStrings.pop()
                     self.pointer = self.pointer - 1
-                    self.matchStrings = self.matchStrings[0:self.pointer]
-                if self.current_char == '\n':
-                    self.line = self.line - 1
+                    if self.current_char == '\n':
+                        self.line = self.line - 1
                 token = self.createToken()
                 if token[0] in ["WHITESPACE", "Comment"]:
                     self.matchStrings.clear()
@@ -118,6 +118,7 @@ class Scanner:
                     return token
 
             self.current_char = self.nextChar()
+            print(self.current_char)
 
             if self.current_char == '\n':
                 self.line = self.line + 1
@@ -214,7 +215,8 @@ class Scanner:
 
         # state 2 ID
         self.state[2].listTransiton.append(Transition(self.state[2], self.state[2], list(self.alphanumerics)))
-        self.state[2].listTransiton.append(Transition(self.state[2], self.state[9], list(self.end)))
+        self.state[2].listTransiton.append(Transition(self.state[2], self.state[9],
+                                                      list(self.symbols.union(self.whitespaces, {self.EOF}))))
 
         # state 3 symbol - lookahead
 
