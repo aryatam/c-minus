@@ -32,12 +32,14 @@ class Scanner:
     all_chars: Set[str] = set(chr(i) for i in range(128))
     digits: Set[str] = set(string.digits)
     letters: Set[str] = set(string.ascii_letters)
-    alphanumerics: Set[str] = digits.union(letters)
     symbols: Set[str] = {';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-', '*', '/', '=', '<', '=='}
     whitespaces: Set[str] = {' ', '\n', '\r', '\t', '\v', '\f'}
-    valid_chars: Set[str] = alphanumerics.union(symbols, whitespaces)
+    valid_chars: Set[str] = digits.union(letters, symbols, whitespaces)
     keywords = {"if", "else", "void", "int", "while", "break", "return"}
     end: Set[str] = symbols.union(whitespaces, {EOF})
+    alphanumerics: Set[str] = digits.union(letters)
+    for keyword in keywords:
+        valid_chars.update(keyword)
 
     def __init__(self):
 
@@ -111,7 +113,7 @@ class Scanner:
                     if self.current_char == '\n':
                         self.line = self.line - 1
                 token = self.createToken()
-                if token[0] in ["WHITESPACE", "Comment"]:
+                if token[0] in ["WHITESPACE", "COMMENT"]:
                     self.matchStrings.clear()
                     self.current_state = self.state[0]
                 else:
@@ -132,6 +134,7 @@ class Scanner:
 
             for transiton in self.current_state.listTransiton:
                 # list transiton is based on prority
+
                 if self.current_char in transiton.moveWith:
                     self.current_state = transiton.end
                     break
@@ -152,22 +155,23 @@ class Scanner:
 
     def error_handler(self, error_type: int):
 
+        matchStringsCopy = self.matchStrings.copy()
+
         if error_type == 1:
             if self.current_state.id == 7 and self.current_char == '/':
-                error = Error("Unmatched comment", None, self.line)
+                error = Error("Unmatched comment", matchStringsCopy, self.line)
                 self.add_error(error)
             elif self.current_state.id == 1 and self.current_char in self.letters:
-                error = Error("Invalid number", None, self.line)
+                error = Error("Invalid number", matchStringsCopy, self.line)
                 self.add_error(error)
             else:
-                error = Error("Invalid input", None, self.line)
+                error = Error("Invalid input", matchStringsCopy, self.line)
                 self.add_error(error)
 
         elif error_type == 2:
             if self.current_state.id == 14 or self.current_state.id == 16:
-                # problem is we should give the line that we saw /* So
                 self.line = self.line - self.matchStrings.count('\n')
-                error = Error("Unclosed comment", self.matchStrings[0:6] + "...", self.line)
+                error = Error("Unclosed comment", matchStringsCopy[0:6] + "...", self.line)
                 self.add_error(error)
 
     def write_error(self):
@@ -176,7 +180,8 @@ class Scanner:
                 error_file.write("There is no lexical error.")
             else:
                 for line_num in sorted(self.errors_dict.keys()):
-                    line = ''.join([f"({error.content}, {error.title}) " for error in self.errors_dict[line_num]])
+                    line = ''.join(
+                        [f"({''.join(error.content)}, {error.title}) " for error in self.errors_dict[line_num]])
                     error_file.write(f"{line_num}.\t{line}\n")
 
     def save_symbols(self):
@@ -198,6 +203,7 @@ class Scanner:
             self.state.append(State(i))
 
     def generateTransitons(self):
+
         # start state 0 Start
         self.state[0].listTransiton.append(Transition(self.state[0], self.state[1], list(self.digits)))
         self.state[0].listTransiton.append(Transition(self.state[0], self.state[2], list(self.letters)))
@@ -230,19 +236,19 @@ class Scanner:
         self.state[5].listTransiton.append(Transition(self.state[5], self.state[14], '*'))
 
         # state 13 //
-        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.all_chars - {'\n'}))
+        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.valid_chars - {'\n'}))
         self.state[13].listTransiton.append(Transition(self.state[13], self.state[15], {"/n", self.EOF}))
 
         # state 14 /*
-        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], self.all_chars - {'*'}))
+        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], self.valid_chars - {'*'}))
         self.state[14].listTransiton.append(Transition(self.state[14], self.state[16], '*'))
 
         # state 16 */
         self.state[16].listTransiton.append(Transition(self.state[16], self.state[17], '/'))
-        self.state[16].listTransiton.append(Transition(self.state[14], self.state[16], self.all_chars - {'/'}))
+        self.state[16].listTransiton.append(Transition(self.state[14], self.state[16], self.valid_chars - {'/'}))
 
         # state 7 * the only problem is /* without /*
-        self.state[7].listTransiton.append(Transition(self.state[7], self.state[18], self.all_chars - {'/'}))
+        self.state[7].listTransiton.append(Transition(self.state[7], self.state[18], self.valid_chars - {'/'}))
 
     def setFinal_lookahead(self):
         # final stages of DFA
@@ -275,7 +281,6 @@ class Compiler:
             current_token = self.scanner.get_next_token()
 
             if current_token is None:
-
                 break
 
             token_type, token_chars = current_token
