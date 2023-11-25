@@ -51,7 +51,7 @@ class Scanner:
         self.state: list[State] = []
         self.current_state: State = None
         self.matchStrings: list[str] = []
-        self.inputCode = open("input.txt", mode="r")
+        self.inputCode = open("input.txt", mode="r", encoding="utf-8")
         self.file_contents = ""
         self.file_contents = self.inputCode.read()
         self.end_of_file = False
@@ -105,7 +105,6 @@ class Scanner:
         while True:
 
             if self.current_state.isFinal:
-
                 if self.current_state.isLookAhead:
                     self.matchStrings.pop()
                     self.pointer = self.pointer - 1
@@ -231,18 +230,17 @@ class Scanner:
         self.state[4].listTransiton.append(Transition(self.state[4], self.state[10], '='))
         self.state[4].listTransiton.append(Transition(self.state[4], self.state[11],
                                                       (self.valid_chars.union({self.EOF} - {'='}))))
-        # state 5 / /* //
+        # state 5 / /*
         self.state[5].listTransiton.append(Transition(self.state[5], self.state[12],
-                                                      (self.valid_chars.union({self.EOF}) - {'*', '/'})))
-        self.state[5].listTransiton.append(Transition(self.state[5], self.state[13], '/'))
+                                                      (self.valid_chars.union({self.EOF}) - {'*'})))
         self.state[5].listTransiton.append(Transition(self.state[5], self.state[14], '*'))
 
-        # state 13 //
-        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.valid_chars - {'\n'}))
+        # state 13 // use less code dont need to handle it!
+        self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.all_chars - {'\n'}))
         self.state[13].listTransiton.append(Transition(self.state[13], self.state[15], {"/n", self.EOF}))
 
         # state 14 /*
-        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], self.valid_chars - {'*'}))
+        self.state[14].listTransiton.append(Transition(self.state[14], self.state[14], self.all_chars - {'*'}))
         self.state[14].listTransiton.append(Transition(self.state[14], self.state[16], '*'))
 
         # state 16 */
