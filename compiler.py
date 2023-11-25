@@ -119,7 +119,6 @@ class Scanner:
 
             self.current_char = self.nextChar()
 
-
             if self.current_char == '\n':
                 self.line = self.line + 1
 
@@ -273,23 +272,26 @@ class Compiler:
     def execute(self):
         tokens_dict: Dict[int, List[Optional[Tuple[str, str]]]] = {}
         while True:
-
             current_token = self.scanner.get_next_token()
             print(current_token)
             if current_token is None:
+                print("salam")
                 break
-            if self.scanner.line in tokens_dict:
-                tokens_dict[self.scanner.line].append(current_token)
 
+            token_type, token_chars = current_token
+            token_copy = (token_type, list(token_chars))
+
+            if self.scanner.line in tokens_dict:
+                tokens_dict[self.scanner.line].append(token_copy)
             else:
-                tokens_dict[self.scanner.line] = [current_token]
+                tokens_dict[self.scanner.line] = [token_copy]
 
             print(tokens_dict)
 
         print(tokens_dict)
         tokens_file = open("tokens.txt", "w")
         for line_num in sorted(tokens_dict.keys()):
-            line = ''.join([f"({token[0]}, {token[1]}) " for token in tokens_dict[line_num]])
+            line = ''.join([f"({token[0]}, {''.join(token[1])}) " for token in tokens_dict[line_num]])
             tokens_file.write(f"{line_num}.\t{line}\n")
 
         self.scanner.write_error()
