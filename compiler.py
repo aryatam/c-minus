@@ -28,7 +28,7 @@ class Error:
 
 class Scanner:
     # states
-    EOF = None
+    EOF = "None"
     all_chars: Set[str] = set(chr(i) for i in range(128))
     digits: Set[str] = set(string.digits)
     letters: Set[str] = set(string.ascii_letters)
@@ -42,7 +42,6 @@ class Scanner:
         valid_chars.update(keyword)
 
     def __init__(self):
-
         self.symbol_table: Dict[str, List[Optional]] = {}
 
         for keyword in Scanner.keywords:
@@ -57,7 +56,7 @@ class Scanner:
         self.file_contents = self.inputCode.read()
         self.end_of_file = False
 
-        self.current_char: Optional[str] = None  # End of file = None
+        self.current_char: Optional[str] = 'None'  # End of file = None
         self.pointer = 0
         self.line = 1
 
@@ -99,7 +98,7 @@ class Scanner:
 
     def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
-            return None
+            return 'None'
         self.matchStrings.clear()
         self.current_state = self.state[0]
 
@@ -124,11 +123,13 @@ class Scanner:
             if self.current_char == '\n':
                 self.line = self.line + 1
 
-            if self.end_of_file:
-                self.current_char = None
+            if self.current_char == self.EOF:
+                self.end_of_file = True
+            else:
+                self.end_of_file = False
 
             if self.end_of_file and self.current_state.id == 0:
-                return None
+                return 'None'
 
             self.matchStrings.append(self.current_char)
 
@@ -146,7 +147,7 @@ class Scanner:
                     self.current_state = self.state[0]
                 else:
                     self.error_handler(2)
-                    return None
+                    return 'None'
 
     def add_error(self, error: Error):
         if error.line in self.errors_dict:
@@ -172,7 +173,7 @@ class Scanner:
         elif error_type == 2:
             if self.current_state.id == 14 or self.current_state.id == 16:
                 self.line = self.line - self.matchStrings.count('\n')
-                error = Error("Unclosed comment", matchStringsCopy[0:6] + "...", self.line)
+                error = Error("Unclosed comment", f"{''.join(self.matchStrings[0:7])}...", self.line)
                 self.add_error(error)
 
     def write_error(self):
@@ -193,7 +194,7 @@ class Scanner:
     def nextChar(self):
         if self.pointer >= len(self.file_contents):
             self.end_of_file = True
-            return None
+            return 'None'
         else:
             char = self.file_contents[self.pointer]
             self.pointer = self.pointer + 1
@@ -246,7 +247,7 @@ class Scanner:
 
         # state 16 */
         self.state[16].listTransiton.append(Transition(self.state[16], self.state[17], '/'))
-        self.state[16].listTransiton.append(Transition(self.state[14], self.state[16], self.valid_chars - {'/'}))
+        self.state[16].listTransiton.append(Transition(self.state[16], self.state[14], self.valid_chars - {'/'}))
 
         # state 7 * the only problem is /* without /*
         self.state[7].listTransiton.append(Transition(self.state[7], self.state[18], self.valid_chars - {'/'}))
@@ -281,7 +282,7 @@ class Compiler:
         while True:
             current_token = self.scanner.get_next_token()
 
-            if current_token is None:
+            if current_token == 'None':
                 break
 
             token_type, token_chars = current_token
@@ -299,7 +300,6 @@ class Compiler:
 
         self.scanner.write_error()
         self.scanner.save_symbols()
-
 
     def __init__(self):
         self.scanner = Scanner()
