@@ -89,11 +89,11 @@ class Scanner:
         elif self.current_state.id == 12:
             return "SYMBOL", self.matchStrings
         elif self.current_state.id == 15:
-            return None, self.matchStrings
+            return "COMMENT", self.matchStrings
         elif self.current_state.id == 17:
             return "COMMENT", self.matchStrings
         elif self.current_state.id == 18:
-            return "KEYWORD", self.matchStrings
+            return "SYMBOL", self.matchStrings
 
     def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
