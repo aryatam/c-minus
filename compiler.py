@@ -127,12 +127,13 @@ class Scanner:
             if self.end_of_file:
                 self.current_char = None
 
-            if self.end_of_file and self.current_state == 0:
+            if self.end_of_file and self.current_state.id == 0:
                 return None
 
             self.matchStrings.append(self.current_char)
 
             for transiton in self.current_state.listTransiton:
+
                 # list transiton is based on prority
 
                 if self.current_char in transiton.moveWith:
