@@ -273,9 +273,9 @@ class Compiler:
         tokens_dict: Dict[int, List[Optional[Tuple[str, str]]]] = {}
         while True:
             current_token = self.scanner.get_next_token()
-            print(current_token)
+
             if current_token is None:
-                print("salam")
+
                 break
 
             token_type, token_chars = current_token
@@ -286,9 +286,6 @@ class Compiler:
             else:
                 tokens_dict[self.scanner.line] = [token_copy]
 
-            print(tokens_dict)
-
-        print(tokens_dict)
         tokens_file = open("tokens.txt", "w")
         for line_num in sorted(tokens_dict.keys()):
             line = ''.join([f"({token[0]}, {''.join(token[1])}) " for token in tokens_dict[line_num]])
