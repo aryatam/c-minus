@@ -300,6 +300,7 @@ class Compiler:
         self.scanner.write_error()
         self.scanner.save_symbols()
 
+
     def __init__(self):
         self.scanner = Scanner()
         self.execute()
