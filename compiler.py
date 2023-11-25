@@ -102,7 +102,7 @@ class Scanner:
         self.current_state = self.state[0]
 
         while True:
-            print(self.line)
+
             if self.current_state.isFinal:
 
                 if self.current_state.isLookAhead:
@@ -118,7 +118,7 @@ class Scanner:
                     return token
 
             self.current_char = self.nextChar()
-            print(self.current_char)
+
 
             if self.current_char == '\n':
                 self.line = self.line + 1
@@ -275,13 +275,18 @@ class Compiler:
         while True:
 
             current_token = self.scanner.get_next_token()
+            print(current_token)
             if current_token is None:
                 break
             if self.scanner.line in tokens_dict:
                 tokens_dict[self.scanner.line].append(current_token)
+
             else:
                 tokens_dict[self.scanner.line] = [current_token]
 
+            print(tokens_dict)
+
+        print(tokens_dict)
         tokens_file = open("tokens.txt", "w")
         for line_num in sorted(tokens_dict.keys()):
             line = ''.join([f"({token[0]}, {token[1]}) " for token in tokens_dict[line_num]])
