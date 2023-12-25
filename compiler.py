@@ -1,9 +1,9 @@
 # Arya tamkhisha 99105323
 # Dorsa Naji     99170586
 
-
+import json
 import string
-from typing import List, Optional, Set, Dict, Tuple
+from typing import List, Optional, Set, Dict, Tuple, Union
 
 
 class State:
@@ -102,10 +102,10 @@ class Scanner:
 
     def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
-            return 'None'
+            return "EOF", "$"
+
         self.matchStrings.clear()
         self.current_state = self.state[0]
-
         while True:
 
             if self.current_state.isFinal:
@@ -276,6 +276,8 @@ class Scanner:
         self.state[15].isLookAhead = True
         self.state[18].isLookAhead = True
 
+class Parser:
+
 
 class Compiler:
     # we run the compiler to give us token by token, and we write it on token file
@@ -305,8 +307,14 @@ class Compiler:
 
     def __init__(self):
         self.scanner = Scanner()
-        self.execute()
+        self.parser = Parser(self.scanner)
+
+    def run(self):
+        self.parser.run()
+        self.parser.save_parse_tree()
+        self.parser.save_errors()
 
 
 if __name__ == '__main__':
     compiler = Compiler()
+    compiler.run()
