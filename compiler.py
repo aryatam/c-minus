@@ -278,20 +278,40 @@ class Scanner:
 
 class Parser:
     def __init__(self, scanner: Scanner):
+        self.token = None
         self.scanner: Scanner = scanner
+        self.LL1Stack = []
+        self.grammar = {'First': grammer.first, 'Follow': grammer.follow}
+        self.ParseErrors = []
+        self.CurrentTer = " "
+
+    def getToken(self):
+        self.token = self.scanner.get_next_token()
+        if self.token[0] == "ID" or self.token == "NUM":
+            self.CurrentTer = self.token[0]
+        else:
+            self.CurrentTer = self.token[1]
+
+    def add_error(self):
+        self.ParseErrors.append(f"#{self.scanner.lineno} : syntax error, {error}")
+
+    def write_errors(self):
+        print(self.ParseErrors)
+
+    def run(self):
+        self.getToken()
+        self.Program()
+
+    def Program(self):
+        pass
 
 
 class Compiler:
     def __init__(self):
         self.scanner = Scanner()
         self.parser = Parser(self.scanner)
-
-    def run(self):
         self.parser.run()
-        self.parser.save_parse_tree()
-        self.parser.save_errors()
 
 
 if __name__ == '__main__':
     compiler = Compiler()
-    compiler.run()

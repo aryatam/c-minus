@@ -121,7 +121,7 @@ first = {
         "while",
         "return",
         "+",
-        "-"
+        "-",
         "epsilon"
     ],
     "Statement": [
@@ -660,4 +660,3 @@ follow = {
     "ArgListPrime": [")"]
 }
 
-}
