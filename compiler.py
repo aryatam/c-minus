@@ -278,6 +278,7 @@ class Scanner:
 
 class Parser:
     def __init__(self, scanner: Scanner):
+        self.nood = Node
         self.token = None
         self.scanner: Scanner = scanner
         self.LL1Stack = []
@@ -292,25 +293,24 @@ class Parser:
         else:
             self.CurrentTer = self.token[1]
 
-    def add_error(self):
-        self.ParseErrors.append(f"#{self.scanner.lineno} : syntax error, {error}")
-
-    def write_errors(self):
-        print(self.ParseErrors)
-
-    def run(self):
+    def parse(self):
         self.getToken()
+        # input first node Program
         self.Program()
+        # while
+        while len(self.LL1Stack)
+
 
     def Program(self):
-        pass
+        self.nood = Node("Program")
+        if self.CurrentTer in self.grammar.first
 
 
 class Compiler:
     def __init__(self):
         self.scanner = Scanner()
         self.parser = Parser(self.scanner)
-        self.parser.run()
+        self.parser.parse()
 
 
 if __name__ == '__main__':
