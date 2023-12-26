@@ -1,9 +1,8 @@
-# Arya tamkhisha 99105323
-# Dorsa Naji     99170586
-
 import json
 import string
 from typing import List, Optional, Set, Dict, Tuple, Union
+from anytree import Node, RenderTree
+import grammer
 
 
 class State:
@@ -239,7 +238,7 @@ class Scanner:
                                                       (self.valid_chars.union({self.EOF}) - {'*'})))
         self.state[5].listTransiton.append(Transition(self.state[5], self.state[14], '*'))
 
-        # state 13 // use less code dont need to handle it!
+        # state 13 // use less code d`ont need to handle it!
         self.state[13].listTransiton.append(Transition(self.state[13], self.state[13], self.all_chars - {'\n'}))
         self.state[13].listTransiton.append(Transition(self.state[13], self.state[15], {"/n", self.EOF}))
 
@@ -276,35 +275,13 @@ class Scanner:
         self.state[15].isLookAhead = True
         self.state[18].isLookAhead = True
 
+
 class Parser:
+    def __init__(self, scanner: Scanner):
+        self.scanner: Scanner = scanner
 
 
 class Compiler:
-    # we run the compiler to give us token by token, and we write it on token file
-    def execute(self):
-        tokens_dict: Dict[int, List[Optional[Tuple[str, str]]]] = {}
-        while True:
-            current_token = self.scanner.get_next_token()
-
-            if current_token == 'None':
-                break
-
-            token_type, token_chars = current_token
-            token_copy = (token_type, list(token_chars))
-
-            if self.scanner.line in tokens_dict:
-                tokens_dict[self.scanner.line].append(token_copy)
-            else:
-                tokens_dict[self.scanner.line] = [token_copy]
-
-        tokens_file = open("tokens.txt", "w")
-        for line_num in sorted(tokens_dict.keys()):
-            line = ''.join([f"({token[0]}, {''.join(token[1])}) " for token in tokens_dict[line_num]])
-            tokens_file.write(f"{line_num}.\t{line}\n")
-
-        self.scanner.write_error()
-        self.scanner.save_symbols()
-
     def __init__(self):
         self.scanner = Scanner()
         self.parser = Parser(self.scanner)
