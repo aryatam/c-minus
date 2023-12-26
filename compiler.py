@@ -282,7 +282,7 @@ class Parser:
         self.token = None
         self.scanner: Scanner = scanner
         self.LL1Stack = []
-        self.grammar = {'First': grammer.first, 'Follow': grammer.follow}
+        self.grammar = {'first': grammer.first, 'follow': grammer.follow}
         self.ParseErrors = []
         self.CurrentTer = " "
 
@@ -297,13 +297,41 @@ class Parser:
         self.getToken()
         # input first node Program
         self.Program()
-        # while
-        while len(self.LL1Stack)
-
+        while len(self.LL1Stack):
+            pop = self.stack.pop()
+            # if it's not tuple its non-terminal
+            if callable(pop):
+                pop()
+            else:
+                # if its tuple its terminal edge = value , parent = parent
+                edge, parent = pop
+                if edge == self.CurrentTer:
+                    lexeme = '$' if self.terminal == '$' else f"({self.current_token[0]}, {self.current_token[1]})"
+                    Node(lexeme, parent)
+                    self.next_token()
+                else:
+                    if self.CurrentTer == '$':
+                        # error unexpected eof
+                        self.LL1Stack = []
+                    else:
+                        pass
+                        # add error missed terminal
 
     def Program(self):
         self.nood = Node("Program")
-        if self.CurrentTer in self.grammar.first
+        if self.CurrentTer in self.grammar['first']['DeclarationList']:
+            self.LL1Stack.append(("$", self.nood))
+            self.LL1Stack.append((self.DeclarationList, self.nood))
+        elif "epsilon" in self.grammar['first']['DeclarationList']:
+            if self.CurrentTer in self.grammar['follow']['Program']:
+                self.LL1Stack.append(("$", self.nood))
+                self.LL1Stack.append((self.DeclarationList, self.nood))
+        else:
+            pass
+            # error
+
+    def DeclarationList(self):
+
 
 
 class Compiler:
