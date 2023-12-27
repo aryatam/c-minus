@@ -4,7 +4,7 @@ from typing import List, Optional, Set, Dict, Tuple, Union
 from anytree import Node, RenderTree
 import grammer
 
-epsilon = "epsilon"
+epsilon = "EPSILON"
 
 
 class State:
@@ -288,6 +288,8 @@ class Parser:
         self.grammar = {'first': grammer.first, 'follow': grammer.follow}
         self.ParseErrors = []
         self.CurrentTer = " "
+
+    def addError(self):
 
     def getToken(self):
         self.token = self.scanner.get_next_token()
@@ -617,7 +619,8 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
             self.LL1Stack.append(("=", node))
 
-        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"]["D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
+        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"][
+            "D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
             self.LL1Stack.append((self.C, node))
             self.LL1Stack.append((self.D, node))
             self.LL1Stack.append((self.G, node))
@@ -677,11 +680,248 @@ class Parser:
         self.name = "AdditiveExpression"
         node = Node(self.name, parent)
 
-        if self.CurrentTer in self.grammar["first"]["Relop"]:
-            self.LL1Stack.append((self.AdditiveExpression, node))
-            self.LL1Stack.append((self.Relop, node))
+        if self.CurrentTer in self.grammar["first"]["Term"]:
+            self.LL1Stack.append((self.D, node))
+            self.LL1Stack.append((self.Term, node))
 
-        elif self.CurrentTer in self.grammar["follow"]["C"]:
+        else:
+            pass
+
+    def AdditiveExpressionPrime(self, parent):
+        self.name = "AdditiveExpressionPrime"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer in self.grammar["first"]["TermPrime"] or self.CurrentTer in self.grammar["first"][
+            "D"] or self.CurrentTer in self.grammar["follow"]["AdditiveExpressionPrime"]:
+            self.LL1Stack.append((self.D, node))
+            self.LL1Stack.append((self.TermPrime, node))
+
+        else:
+            pass
+
+    def AdditiveExpressionZegond(self, parent):
+        self.name = "AdditiveExpressionZegond"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer in self.grammar["first"]["TermZegond"]:
+            self.LL1Stack.append((self.D, node))
+            self.LL1Stack.append((self.TermZegond, node))
+
+        else:
+            pass
+
+    def D(self, parent):
+        self.name = "Addop"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Addop"]:
+            self.LL1Stack.append((self.D, node))
+            self.LL1Stack.append((self.Term, node))
+            self.LL1Stack.append((self.Addop, node))
+
+        elif self.CurrentTer in self.grammar["follow"]["D"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def Addop(self, parent):
+        self.name = "Addop"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer is "+":
+            self.LL1Stack.append(("+", node))
+        elif self.CurrentTer is "-":
+            self.LL1Stack.append(("-", node))
+        else:
+            pass
+
+    def Term(self, parent):
+        self.name = "Term"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["SignedFactor"]:
+            self.LL1Stack.append((self.G, node))
+            self.LL1Stack.append((self.SignedFactor, node))
+        else:
+            pass
+
+    def TermPrime(self, parent):
+        self.name = "TermPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["SignedFactorPrime"] or self.CurrentTer in self.grammar["first"][
+            "G"] or self.CurrentTer in self.grammar["follow"]["TermPrime"]:
+            self.LL1Stack.append((self.G, node))
+            self.LL1Stack.append((self.SignedFactorPrime, node))
+        else:
+            pass
+
+    def TermZegond(self, parent):
+        self.name = "TermZegond"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["SignedFactorZegond"]:
+            self.LL1Stack.append((self.G, node))
+            self.LL1Stack.append((self.SignedFactorZegond, node))
+        else:
+            pass
+
+    def G(self, parent):
+        self.name = "G"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "*":
+            self.LL1Stack.append((self.G, node))
+            self.LL1Stack.append((self.SignedFactor, node))
+            self.LL1Stack.append(("*", node))
+
+        elif self.CurrentTer in self.grammar["follow"]["G"]:
+            Node(epsilon, node)
+        else:
+            pass
+
+    def SignedFactor(self, parent):
+        self.name = "SignedFactor"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "+":
+            self.LL1Stack.append((self.Factor, node))
+            self.LL1Stack.append(("+", node))
+
+        elif self.CurrentTer is "-":
+            self.LL1Stack.append((self.Factor, node))
+            self.LL1Stack.append(("-", node))
+
+        elif self.CurrentTer in self.grammar["first"]["Factor"]:
+            self.LL1Stack.append((self.Factor, node))
+        else:
+            pass
+
+    def SignedFactorPrime(self, parent):
+        self.name = "SignedFactorPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["FactorPrime"] or self.CurrentTer in self.grammar["follow"][
+            "SignedFactorPrime"]:
+            self.LL1Stack.append((self.FactorPrime, node))
+
+        else:
+            pass
+
+    def SignedFactorZegond(self, parent):
+        self.name = "SignedFactorZegond"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "+":
+            self.LL1Stack.append((self.Factor, node))
+            self.LL1Stack.append(("+", node))
+
+        elif self.CurrentTer is "-":
+            self.LL1Stack.append((self.Factor, node))
+            self.LL1Stack.append(("-", node))
+
+        elif self.CurrentTer in self.grammar["first"]["FactorZegond"]:
+            self.LL1Stack.append((self.FactorZegond, node))
+        else:
+            pass
+
+    def Factor(self, parent):
+        self.name = "Factor"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "(":
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("(", node))
+
+        elif self.CurrentTer is "ID":
+            self.LL1Stack.append((self.VarCallPrime, node))
+            self.LL1Stack.append(("ID", node))
+
+        elif self.CurrentTer is "NUM":
+            self.LL1Stack.append(("NUM", node))
+        else:
+            pass
+
+    def VarCallPrime(self, parent):
+        self.name = "VarCallPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "(":
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Args, node))
+            self.LL1Stack.append(("(", node))
+
+        elif self.CurrentTer in self.grammar["first"]["VarPrime"] or self.CurrentTer in self.grammar["follow"][
+            "VarCallPrime"]:
+            self.LL1Stack.append((self.VarPrime, node))
+
+        else:
+            pass
+
+    def VarPrime(self, parent):
+        self.name = "VarPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "[":
+            self.LL1Stack.append(("]", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("[", node))
+
+        elif self.CurrentTer in self.grammar["follow"]["VarPrime"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def FactorPrime(self, parent):
+        self.name = "FactorPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "(":
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Args, node))
+            self.LL1Stack.append(("(", node))
+
+        elif self.CurrentTer in self.grammar["follow"]["FactorPrime"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def FactorZegond(self, parent):
+        self.name = "FactorZegond"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "(":
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("(", node))
+
+        elif self.CurrentTer is "NUM":
+            self.LL1Stack.append(("NUM", node))
+
+        else:
+            pass
+
+    def Args(self, parent):
+        self.name = "Args"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["ArgList"]:
+            self.LL1Stack.append((self.ArgList, node))
+
+        elif self.CurrentTer in self.grammar["follow"]["Args"]:
+            Node(epsilon, node)
+        else:
+            pass
+
+    def ArgList(self, parent):
+        self.name = "ArgList"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Expression"]:
+            self.LL1Stack.append((self.ArgListPrime, node))
+            self.LL1Stack.append((self.Expression, node))
+
+        else:
+            pass
+
+    def ArgListPrime(self, parent):
+        self.name = "ArgListPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is ',':
+            self.LL1Stack.append((self.ArgListPrime, node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append((",", node))
+
+        elif self.CurrentTer in self.grammar["follow"]["ArgListPrime"]:
             Node(epsilon, node)
 
         else:
