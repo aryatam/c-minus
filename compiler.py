@@ -103,7 +103,7 @@ class Scanner:
 
     def get_next_token(self) -> Optional[Tuple[str, str]]:
         if self.end_of_file:
-            return "EOF", "$"
+            return "$", "$"
 
         self.matchStrings.clear()
         self.current_state = self.state[0]
@@ -280,6 +280,7 @@ class Scanner:
 
 class Parser:
     def __init__(self, scanner: Scanner):
+        self.LineParser = 1
         self.name = " "
         self.root = None
         self.token = None
@@ -289,7 +290,35 @@ class Parser:
         self.ParseErrors = []
         self.CurrentTer = " "
 
-    def addError(self):
+    def create_syntax_error_file(self):
+        with open('syntax_errors.txt', 'w') as file:
+            if not self.ParseErrors:
+                file.write("There is no syntax error.\n")
+            else:
+                for error in self.ParseErrors:
+                    file.write(f"{error}\n")
+
+    def addError(self, error):
+        self.ParseErrors.append(error)
+
+    def getLine(self):
+        self.LineParser = self.scanner.line
+        return self.LineParser
+
+    def PanicError(self, name, method, node):
+        if self.CurrentTer in self.grammar["Follow"][name]:
+            self.addError(f"#{self.getLine()} : syntax error, missing {name}")
+            node.parent = None
+        else:
+            if self.terminal == '$':
+                self.LL1Stack = [('','')]
+                node.parent = None
+            else:
+                self.addError(f"#{self.getLine()} : syntax error, illegal {self.CurrentTer}")
+                self.getToken()
+                parent = node.parent
+                node.parent = None
+                self.LL1Stack.append((method, parent))
 
     def getToken(self):
         self.token = self.scanner.get_next_token()
@@ -316,11 +345,10 @@ class Parser:
                     self.next_token()
                 else:
                     if self.CurrentTer == '$':
-                        # error unexpected eof
+                        self.addError(f"#{self.scanner.line} : syntax error, Unexpected EOF")
                         self.LL1Stack.clear()
                     else:
-                        pass
-                        # add error missed terminal
+                        self.addError(f"#{self.scanner.line} : syntax error, missing {TerOrNotTer}")
 
     def Program(self):
         self.name = "Program"
