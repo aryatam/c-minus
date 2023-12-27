@@ -322,7 +322,7 @@ class Parser:
 
     def Program(self):
         self.name = "Program"
-        self.root = Node("Program")
+        self.root = Node(self.name)
         if self.CurrentTer in self.grammar['first']['DeclarationList']:
             self.LL1Stack.append(("$", self.root))
             self.LL1Stack.append((self.DeclarationList, self.root))
@@ -336,7 +336,7 @@ class Parser:
 
     def DeclarationList(self, parent):
         self.name = "DeclarationList"
-        node = Node("DeclarationList", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer in self.grammer["first"]["Declaration"]:
             self.LL1Stack.append((self.DeclarationList, node))
             self.LL1Stack.append((self.Declaration, node))
@@ -349,7 +349,7 @@ class Parser:
 
     def Declaration(self, parent):
         self.name = "Declaration"
-        node = Node("Declaration", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer in self.grammar["first"]["DeclarationInitial"]:
             self.LL1Stack.append((self.DeclarationPrime, node))
             self.LL1Stack.append((self.DeclarationInitial, node))
@@ -358,7 +358,7 @@ class Parser:
 
     def DeclarationInitial(self, parent):
         self.name = "DeclarationInitial"
-        node = Node("DeclarationInitial", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer in self.grammar["first"]["TypeSpecifier"]:
             self.LL1Stack.append(("ID", node))
             self.LL1Stack.append((self.TypeSpecifier, node))
@@ -367,7 +367,7 @@ class Parser:
 
     def DeclarationPrime(self, parent):
         self.name = "DeclarationPrime"
-        node = Node("DeclarationPrime", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer in self.grammar["first"]["FunDeclarationPrime"]:
             self.LL1Stack.append((self.FunDeclarationPrime, node))
         elif self.CurrentTer in self.grammar["first"]["VarDeclarationPrime"]:
@@ -378,7 +378,7 @@ class Parser:
 
     def VarDeclarationPrime(self, parent):
         self.name = "VarDeclarationPrime"
-        node = Node("VarDeclarationPrime", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer is ';':
             self.LL1Stack.append((";", node))
         elif self.CurrentTer is '[':
@@ -391,7 +391,7 @@ class Parser:
 
     def FunDeclarationPrime(self, parent):
         self.name = "FunDeclarationPrime"
-        node = Node("FunDeclarationPrime", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer is '(':
             self.LL1Stack.append((self.CompoundStmt, node))
             self.LL1Stack.append((")", node))
@@ -403,7 +403,7 @@ class Parser:
 
     def TypeSpecifier(self, parent):
         self.name = "TypeSpecifier"
-        node = Node("TypeSpecifier", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer is "int":
             self.LL1Stack.append(("int", node))
         elif self.CurrentTer is "void":
@@ -414,7 +414,7 @@ class Parser:
 
     def Params(self, parent):
         self.name = "Params"
-        node = Node("Params", parent)
+        node = Node(self.name, parent)
         if self.CurrentTer is "int":
             self.LL1Stack.append((self.ParamList, node))
             self.LL1Stack.append((self.ParamPrime, node))
@@ -424,6 +424,233 @@ class Parser:
         elif self.CurrentTer is "void":
             self.LL1Stack.append(("void", node))
 
+        else:
+            pass
+
+    def ParamList(self, parent):
+        self.name = "ParamList"
+        node = Node(self.name, parent)
+        if self.CurrentTer is ',':
+            self.LL1Stack.append((self.ParamList, node))
+            self.LL1Stack.append((self.Param, node))
+            self.LL1Stack.append((",", node))
+
+        elif self.CurrentTer in self.grammar["follow"]["ParamList"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def Param(self, parent):
+        self.name = "Param"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["DeclarationInitial"]:
+            self.LL1Stack.append((self.ParamPrime, node))
+            self.LL1Stack.append((self.DeclarationInitial, node))
+
+        else:
+            pass
+
+    def ParamPrime(self, parent):
+        self.name = "ParamPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is '[':
+            self.LL1Stack.append((']', node))
+            self.LL1Stack.append(('[', node))
+
+        elif self.CurrentTer in self.grammar["follow"]["ParamPrime"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def CompoundStmt(self, parent):
+        self.name = "CompoundStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer is '{':
+            self.LL1Stack.append(("}", node))
+            self.LL1Stack.append((self.StatementList, node))
+            self.LL1Stack.append((self.DeclarationList, node))
+            self.LL1Stack.append(("{", node))
+
+        else:
+            pass
+
+    def StatementList(self, parent):
+        self.name = "StatementList"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Statement"]:
+            self.LL1Stack.append((self.StatementList, node))
+            self.LL1Stack.append((self.Statement, node))
+
+        elif self.CurrentTer in self.grammar["follow"]["StatementList"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def Statement(self, parent):
+        self.name = "ExpressionStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["ExpressionStmt"]:
+            self.LL1Stack.append((self.ExpressionStmt, node))
+        elif self.CurrentTer in self.grammar["first"]["CompoundStmt"]:
+            self.LL1Stack.append((self.CompoundStmt, node))
+        elif self.CurrentTer in self.grammar["first"]["SelectionStmt"]:
+            self.LL1Stack.append((self.SelectionStmt, node))
+        elif self.CurrentTer in self.grammar["first"]["IterationStmt"]:
+            self.LL1Stack.append((self.IterationStmt, node))
+        elif self.CurrentTer in self.grammar["first"]["ReturnStmt"]:
+            self.LL1Stack.append((self.ReturnStmt, node))
+
+        else:
+            pass
+
+    def ExpressionStmt(self, parent):
+        self.name = "ExpressionStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Expression"]:
+            self.LL1Stack.append((";", node))
+            self.LL1Stack.append((self.Expression, node))
+
+        elif self.CurrentTer is "break":
+            self.LL1Stack.append((";", node))
+            self.LL1Stack.append(("break", node))
+
+        elif self.CurrentTer is ";":
+            self.LL1Stack.append((";", node))
+
+        else:
+            pass
+
+    def SelectionStmt(self, parent):
+        self.name = "SelectionStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "if":
+            self.LL1Stack.append((self.Statement, node))
+            self.LL1Stack.append(("else", node))
+            self.LL1Stack.append((self.Statement, node))
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("(", node))
+            self.LL1Stack.append(("if", node))
+
+        else:
+            pass
+
+    def IterationStmt(self, parent):
+        self.name = "IterationStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "while":
+            self.LL1Stack.append((self.Statement, node))
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("(", node))
+            self.LL1Stack.append(("while", node))
+        else:
+            pass
+
+    def ReturnStmt(self, parent):
+        self.name = "ReturnStmt"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "return":
+            self.LL1Stack.append((self.ReturnStmtPrime, node))
+            self.LL1Stack.append(("return", node))
+
+        else:
+            pass
+
+    def ReturnStmtPrime(self, parent):
+        self.name = "ReturnStmtPrime"
+        node = Node(self.name, parent)
+        if self.CurrentTer is ";":
+            self.LL1Stack.append((";", node))
+
+        elif self.CurrentTer in self.grammar["first"]["Expression"]:
+            self.LL1Stack.append((";", node))
+            self.LL1Stack.append((self.Expression, node))
+
+        else:
+            pass
+
+    def Expression(self, parent):
+        self.name = "Expression"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer in self.grammar["first"]["SimpleExpressionZegond"]:
+            self.LL1Stack.append((self.SimpleExpressionZegond, node))
+
+        elif self.CurrentTer is "ID":
+            self.LL1Stack.append((self.B, node))
+            self.LL1Stack.append(("ID", node))
+
+        else:
+            pass
+
+    def B(self, parent):
+
+        self.name = "B"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer is "=":
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("=", node))
+
+        elif self.CurrentTer is "[":
+            self.LL1Stack.append((self.H, node))
+            self.LL1Stack.append(("]", node))
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("[", node))
+
+        elif self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in \
+                self.grammar["follow"]["B"]:
+            self.LL1Stack.append((self.SimpleExpressionPrime, node))
+
+        else:
+            pass
+
+    def H(self, parent):
+        self.name = "H"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer is "=":
+            self.LL1Stack.append((self.Expression, node))
+            self.LL1Stack.append(("=", node))
+
+        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"][
+            "D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
+            self.LL1Stack.append((self.C, node))
+            self.LL1Stack.append((self.D, node))
+            self.LL1Stack.append((self.G, node))
+
+        else:
+            pass
+
+    def SimpleExpressionZegond(self, parent):
+        self.name = "SimpleExpressionZegond"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer in self.grammar["first"]["AdditiveExpressionZegond"]:
+            self.LL1Stack.append(("C", node))
+            self.LL1Stack.append((self.AdditiveExpressionZegond, node))
+
+        else:
+            pass
+
+    def SimpleExpressionPrime(self, parent):
+        self.name = "SimpleExpressionPrime"
+        node = Node(self.name, parent)
+
+        if self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in self.grammar["follow"]["SimpleExpressionPrime"]:
+            self.LL1Stack.append(("C", node))
+            self.LL1Stack.append((self.AdditiveExpressionZegond, node))
+
+        else:
+            pass
+
+    def C(self, parent):
+        self.name = "C"
+        node = Node(self.name, parent)
 
 class Compiler:
     def __init__(self):
