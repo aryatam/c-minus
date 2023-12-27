@@ -4,7 +4,7 @@ from typing import List, Optional, Set, Dict, Tuple, Union
 from anytree import Node, RenderTree
 import grammer
 
-epsilon = "EPSILON"
+epsilon = "epsilon"
 
 
 class State:
@@ -290,6 +290,10 @@ class Parser:
         self.ParseErrors = []
         self.CurrentTer = " "
 
+    def create_parse_tree_file(self):
+        pass
+        # dont even have a clue!
+
     def create_syntax_error_file(self):
         with open('syntax_errors.txt', 'w') as file:
             if not self.ParseErrors:
@@ -311,7 +315,7 @@ class Parser:
             node.parent = None
         else:
             if self.terminal == '$':
-                self.LL1Stack = [('','')]
+                self.LL1Stack = [('', '')]
                 node.parent = None
             else:
                 self.addError(f"#{self.getLine()} : syntax error, illegal {self.CurrentTer}")
@@ -361,8 +365,7 @@ class Parser:
                 self.LL1Stack.append(("$", self.root))
                 self.LL1Stack.append((self.DeclarationList, self.root))
         else:
-            pass
-            # error
+            self.PanicError("Program", self.Program, self.root)
 
     def DeclarationList(self, parent):
         self.name = "DeclarationList"
@@ -374,8 +377,7 @@ class Parser:
         elif self.CurrentTer in self.grammar["follow"]["DeclarationList"]:
             Node(epsilon, node)
         else:
-            pass
-            # error
+            self.PanicError("DeclarationList", self.DeclarationList, node)
 
     def Declaration(self, parent):
         self.name = "Declaration"
@@ -384,7 +386,7 @@ class Parser:
             self.LL1Stack.append((self.DeclarationPrime, node))
             self.LL1Stack.append((self.DeclarationInitial, node))
         else:
-            pass
+            self.PanicError('Declaration', self.Declaration, node)
 
     def DeclarationInitial(self, parent):
         self.name = "DeclarationInitial"
@@ -393,7 +395,7 @@ class Parser:
             self.LL1Stack.append(("ID", node))
             self.LL1Stack.append((self.TypeSpecifier, node))
         else:
-            pass
+            self.PanicError("DeclarationInitial", self.DeclarationInitial, node)
 
     def DeclarationPrime(self, parent):
         self.name = "DeclarationPrime"
@@ -404,7 +406,7 @@ class Parser:
             self.LL1Stack.append((self.VarDeclarationPrime, node))
 
         else:
-            pass
+            self.PanicError("DeclarationPrime", self.DeclarationPrime, node)
 
     def VarDeclarationPrime(self, parent):
         self.name = "VarDeclarationPrime"
@@ -417,7 +419,7 @@ class Parser:
             self.LL1Stack.append(("NUM", node))
             self.LL1Stack.append(("[", node))
         else:
-            pass
+            self.PanicError("VarDeclarationPrime", self.VarDeclarationPrime, node)
 
     def FunDeclarationPrime(self, parent):
         self.name = "FunDeclarationPrime"
@@ -429,7 +431,7 @@ class Parser:
             self.LL1Stack.append(("(", node))
 
         else:
-            pass
+            self.PanicError("FunDeclarationPrime", self.FunDeclarationPrime, node)
 
     def TypeSpecifier(self, parent):
         self.name = "TypeSpecifier"
@@ -440,7 +442,7 @@ class Parser:
             self.LL1Stack.append(("void", node))
 
         else:
-            pass
+            self.PanicError("TypeSpecifier", self.TypeSpecifier, node)
 
     def Params(self, parent):
         self.name = "Params"
@@ -455,7 +457,7 @@ class Parser:
             self.LL1Stack.append(("void", node))
 
         else:
-            pass
+            self.PanicError("Params", self.Params, node)
 
     def ParamList(self, parent):
         self.name = "ParamList"
@@ -469,7 +471,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("ParamList", self.ParamList, node)
 
     def Param(self, parent):
         self.name = "Param"
@@ -479,7 +481,7 @@ class Parser:
             self.LL1Stack.append((self.DeclarationInitial, node))
 
         else:
-            pass
+            self.PanicError("Param", self.Param, node)
 
     def ParamPrime(self, parent):
         self.name = "ParamPrime"
@@ -492,7 +494,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("ParamPrime", self.ParamPrime, node)
 
     def CompoundStmt(self, parent):
         self.name = "CompoundStmt"
@@ -504,7 +506,7 @@ class Parser:
             self.LL1Stack.append(("{", node))
 
         else:
-            pass
+            self.PanicError("CompoundStmt", self.CompoundStmt, node)
 
     def StatementList(self, parent):
         self.name = "StatementList"
@@ -517,7 +519,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("StatementList", self.StatementList, node)
 
     def Statement(self, parent):
         self.name = "ExpressionStmt"
@@ -534,7 +536,7 @@ class Parser:
             self.LL1Stack.append((self.ReturnStmt, node))
 
         else:
-            pass
+            self.PanicError("Statement", self.Statement, node)
 
     def ExpressionStmt(self, parent):
         self.name = "ExpressionStmt"
@@ -551,7 +553,7 @@ class Parser:
             self.LL1Stack.append((";", node))
 
         else:
-            pass
+            self.PanicError("ExpressionStmt", self.ExpressionStmt, node)
 
     def SelectionStmt(self, parent):
         self.name = "SelectionStmt"
@@ -566,7 +568,7 @@ class Parser:
             self.LL1Stack.append(("if", node))
 
         else:
-            pass
+            self.PanicError("SelectionStmt", self.SelectionStmt, node)
 
     def IterationStmt(self, parent):
         self.name = "IterationStmt"
@@ -578,7 +580,7 @@ class Parser:
             self.LL1Stack.append(("(", node))
             self.LL1Stack.append(("while", node))
         else:
-            pass
+            self.PanicError("IterationStmt", self.IterationStmt, node)
 
     def ReturnStmt(self, parent):
         self.name = "ReturnStmt"
@@ -588,7 +590,7 @@ class Parser:
             self.LL1Stack.append(("return", node))
 
         else:
-            pass
+            self.PanicError("ReturnStmt", self.ReturnStmt, node)
 
     def ReturnStmtPrime(self, parent):
         self.name = "ReturnStmtPrime"
@@ -601,7 +603,7 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
 
         else:
-            pass
+            self.PanicError("ReturnStmtPrime", self.ReturnStmtPrime, node)
 
     def Expression(self, parent):
         self.name = "Expression"
@@ -615,7 +617,7 @@ class Parser:
             self.LL1Stack.append(("ID", node))
 
         else:
-            pass
+            self.PanicError("Expression", self.Expression, node)
 
     def B(self, parent):
 
@@ -637,7 +639,7 @@ class Parser:
             self.LL1Stack.append((self.SimpleExpressionPrime, node))
 
         else:
-            pass
+            self.PanicError("B", self.B, node)
 
     def H(self, parent):
         self.name = "H"
@@ -654,7 +656,7 @@ class Parser:
             self.LL1Stack.append((self.G, node))
 
         else:
-            pass
+            self.PanicError("H", self.H, node)
 
     def SimpleExpressionZegond(self, parent):
         self.name = "SimpleExpressionZegond"
@@ -665,7 +667,7 @@ class Parser:
             self.LL1Stack.append((self.AdditiveExpressionZegond, node))
 
         else:
-            pass
+            self.PanicError("SimpleExpressionZegond", self.SimpleExpressionZegond, node)
 
     def SimpleExpressionPrime(self, parent):
         self.name = "SimpleExpressionPrime"
@@ -677,7 +679,7 @@ class Parser:
             self.LL1Stack.append((self.AdditiveExpressionZegond, node))
 
         else:
-            pass
+            self.PanicError("SimpleExpressionPrime", self.SimpleExpressionPrime, node)
 
     def C(self, parent):
         self.name = "C"
@@ -690,7 +692,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("C", self.C, node)
 
     def Relop(self, parent):
         self.name = "Relop"
@@ -701,7 +703,7 @@ class Parser:
             self.LL1Stack.append(("==", node))
 
         else:
-            pass
+            self.PanicError("Relop", self.Relop, node)
 
     # not done yet
     def AdditiveExpression(self, parent):
@@ -713,7 +715,7 @@ class Parser:
             self.LL1Stack.append((self.Term, node))
 
         else:
-            pass
+            self.PanicError("AdditiveExpression", self.AdditiveExpression, node)
 
     def AdditiveExpressionPrime(self, parent):
         self.name = "AdditiveExpressionPrime"
@@ -725,7 +727,7 @@ class Parser:
             self.LL1Stack.append((self.TermPrime, node))
 
         else:
-            pass
+            self.PanicError("AdditiveExpressionPrime", self.AdditiveExpressionPrime, node)
 
     def AdditiveExpressionZegond(self, parent):
         self.name = "AdditiveExpressionZegond"
@@ -736,7 +738,7 @@ class Parser:
             self.LL1Stack.append((self.TermZegond, node))
 
         else:
-            pass
+            self.PanicError("AdditiveExpressionZegond", self.AdditiveExpressionZegond, node)
 
     def D(self, parent):
         self.name = "Addop"
@@ -750,7 +752,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("D", self.D, node)
 
     def Addop(self, parent):
         self.name = "Addop"
@@ -761,7 +763,7 @@ class Parser:
         elif self.CurrentTer is "-":
             self.LL1Stack.append(("-", node))
         else:
-            pass
+            self.PanicError("Addop", self.Addop, node)
 
     def Term(self, parent):
         self.name = "Term"
@@ -770,7 +772,7 @@ class Parser:
             self.LL1Stack.append((self.G, node))
             self.LL1Stack.append((self.SignedFactor, node))
         else:
-            pass
+            self.PanicError("Term", self.Term, node)
 
     def TermPrime(self, parent):
         self.name = "TermPrime"
@@ -780,7 +782,7 @@ class Parser:
             self.LL1Stack.append((self.G, node))
             self.LL1Stack.append((self.SignedFactorPrime, node))
         else:
-            pass
+            self.PanicError("TermPrime", self.TermPrime, node)
 
     def TermZegond(self, parent):
         self.name = "TermZegond"
@@ -789,7 +791,7 @@ class Parser:
             self.LL1Stack.append((self.G, node))
             self.LL1Stack.append((self.SignedFactorZegond, node))
         else:
-            pass
+            self.PanicError("TermZegond", self.TermZegond, node)
 
     def G(self, parent):
         self.name = "G"
@@ -802,7 +804,7 @@ class Parser:
         elif self.CurrentTer in self.grammar["follow"]["G"]:
             Node(epsilon, node)
         else:
-            pass
+            self.PanicError("G", self.G, node)
 
     def SignedFactor(self, parent):
         self.name = "SignedFactor"
@@ -818,7 +820,7 @@ class Parser:
         elif self.CurrentTer in self.grammar["first"]["Factor"]:
             self.LL1Stack.append((self.Factor, node))
         else:
-            pass
+            self.PanicError("SignedFactor", self.SignedFactor, node)
 
     def SignedFactorPrime(self, parent):
         self.name = "SignedFactorPrime"
@@ -828,7 +830,7 @@ class Parser:
             self.LL1Stack.append((self.FactorPrime, node))
 
         else:
-            pass
+            self.PanicError("SignedFactorPrime", self.SignedFactorPrime, node)
 
     def SignedFactorZegond(self, parent):
         self.name = "SignedFactorZegond"
@@ -844,7 +846,7 @@ class Parser:
         elif self.CurrentTer in self.grammar["first"]["FactorZegond"]:
             self.LL1Stack.append((self.FactorZegond, node))
         else:
-            pass
+            self.PanicError("SignedFactorZegond", self.SignedFactorZegond, node)
 
     def Factor(self, parent):
         self.name = "Factor"
@@ -861,7 +863,7 @@ class Parser:
         elif self.CurrentTer is "NUM":
             self.LL1Stack.append(("NUM", node))
         else:
-            pass
+            self.PanicError("Factor", self.Factor, node)
 
     def VarCallPrime(self, parent):
         self.name = "VarCallPrime"
@@ -876,7 +878,7 @@ class Parser:
             self.LL1Stack.append((self.VarPrime, node))
 
         else:
-            pass
+            self.PanicError("VarCallPrime", self.VarCallPrime, node)
 
     def VarPrime(self, parent):
         self.name = "VarPrime"
@@ -890,7 +892,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("VarPrime", self.VarPrime, node)
 
     def FactorPrime(self, parent):
         self.name = "FactorPrime"
@@ -904,7 +906,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("FactorPrime", self.FactorPrime, node)
 
     def FactorZegond(self, parent):
         self.name = "FactorZegond"
@@ -918,7 +920,7 @@ class Parser:
             self.LL1Stack.append(("NUM", node))
 
         else:
-            pass
+            self.PanicError("FactorZegond", self.FactorZegond, node)
 
     def Args(self, parent):
         self.name = "Args"
@@ -929,7 +931,7 @@ class Parser:
         elif self.CurrentTer in self.grammar["follow"]["Args"]:
             Node(epsilon, node)
         else:
-            pass
+            self.PanicError("Args", self.Args, node)
 
     def ArgList(self, parent):
         self.name = "ArgList"
@@ -939,7 +941,7 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
 
         else:
-            pass
+            self.PanicError("ArgList", self.ArgList, node)
 
     def ArgListPrime(self, parent):
         self.name = "ArgListPrime"
@@ -953,7 +955,7 @@ class Parser:
             Node(epsilon, node)
 
         else:
-            pass
+            self.PanicError("ArgListPrime", self.ArgListPrime, node)
 
 
 class Compiler:
