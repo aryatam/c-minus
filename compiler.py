@@ -963,6 +963,8 @@ class Compiler:
         self.scanner = Scanner()
         self.parser = Parser(self.scanner)
         self.parser.parse()
+        self.parser.create_parse_tree_file()
+        self.parser.create_syntax_error_file()
 
 
 if __name__ == '__main__':
