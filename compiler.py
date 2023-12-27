@@ -617,8 +617,7 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
             self.LL1Stack.append(("=", node))
 
-        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"][
-            "D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
+        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"]["D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
             self.LL1Stack.append((self.C, node))
             self.LL1Stack.append((self.D, node))
             self.LL1Stack.append((self.G, node))
@@ -677,6 +676,7 @@ class Parser:
     def AdditiveExpression(self, parent):
         self.name = "AdditiveExpression"
         node = Node(self.name, parent)
+
         if self.CurrentTer in self.grammar["first"]["Relop"]:
             self.LL1Stack.append((self.AdditiveExpression, node))
             self.LL1Stack.append((self.Relop, node))
