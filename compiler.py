@@ -312,11 +312,11 @@ class Parser:
         return self.LineParser
 
     def PanicError(self, name, method, node):
-        if self.CurrentTer in self.grammar["Follow"][name]:
+        if self.CurrentTer in self.grammar["follow"][name]:
             self.addError(f"#{self.getLine()} : syntax error, missing {name}")
             node.parent = None
         else:
-            if self.terminal == '$':
+            if self.CurrentTer == '$':
                 self.LL1Stack = [('', '')]
                 node.parent = None
             else:
@@ -332,6 +332,8 @@ class Parser:
             self.CurrentTer = self.token[0]
         else:
             self.CurrentTer = self.token[1]
+            self.CurrentTer = ''.join(self.CurrentTer)
+            print(self.CurrentTer)
 
     def parse(self):
         self.getToken()
@@ -348,7 +350,7 @@ class Parser:
                 if TerOrNotTer == self.CurrentTer:
                     lexeme = '$' if self.CurrentTer == '$' else f"({self.token[0]}, {self.token[1]})"
                     Node(lexeme, parent)
-                    self.next_token()
+                    self.getToken()
                 else:
                     if self.CurrentTer == '$':
                         self.addError(f"#{self.scanner.line} : syntax error, Unexpected EOF")
@@ -372,7 +374,7 @@ class Parser:
     def DeclarationList(self, parent):
         self.name = "DeclarationList"
         node = Node(self.name, parent)
-        if self.CurrentTer in self.grammer["first"]["Declaration"]:
+        if self.CurrentTer in self.grammar["first"]["Declaration"]:
             self.LL1Stack.append((self.DeclarationList, node))
             self.LL1Stack.append((self.Declaration, node))
         # epsilon rule is a terminal

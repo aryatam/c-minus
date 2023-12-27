@@ -1,0 +1,51 @@
+Program
+├── DeclarationList
+│   ├── Declaration
+│   │   ├── DeclarationInitial
+│   │   │   ├── TypeSpecifier
+│   │   │   │   └── (KEYWORD, ['v', 'o', 'i', 'd'])
+│   │   │   └── (ID, ['m', 'a', 'i', 'n'])
+│   │   └── DeclarationPrime
+│   │       └── FunDeclarationPrime
+│   │           ├── (SYMBOL, ['('])
+│   │           ├── Params
+│   │           │   └── (KEYWORD, ['v', 'o', 'i', 'd'])
+│   │           ├── (SYMBOL, [')'])
+│   │           └── CompoundStmt
+│   │               ├── (SYMBOL, ['{'])
+│   │               ├── DeclarationList
+│   │               │   ├── Declaration
+│   │               │   │   ├── DeclarationInitial
+│   │               │   │   │   ├── TypeSpecifier
+│   │               │   │   │   │   └── (KEYWORD, ['i', 'n', 't'])
+│   │               │   │   │   └── (ID, ['x'])
+│   │               │   │   └── DeclarationPrime
+│   │               │   │       └── VarDeclarationPrime
+│   │               │   │           └── (SYMBOL, [';'])
+│   │               │   └── DeclarationList
+│   │               │       └── epsilon
+│   │               ├── StatementList
+│   │               │   ├── ExpressionStmt
+│   │               │   │   └── ExpressionStmt
+│   │               │   │       ├── Expression
+│   │               │   │       │   ├── (ID, ['x'])
+│   │               │   │       │   └── B
+│   │               │   │       │       ├── (SYMBOL, ['='])
+│   │               │   │       │       └── Expression
+│   │               │   │       │           └── SimpleExpressionZegond
+│   │               │   │       │               └── AdditiveExpressionZegond
+│   │               │   │       │                   ├── TermZegond
+│   │               │   │       │                   │   ├── SignedFactorZegond
+│   │               │   │       │                   │   │   └── FactorZegond
+│   │               │   │       │                   │   │       └── (NUM, ['1', '0'])
+│   │               │   │       │                   │   └── G
+│   │               │   │       │                   │       └── epsilon
+│   │               │   │       │                   └── Addop
+│   │               │   │       │                       └── epsilon
+│   │               │   │       └── (SYMBOL, [';'])
+│   │               │   └── StatementList
+│   │               │       └── epsilon
+│   │               └── (SYMBOL, ['}'])
+│   └── DeclarationList
+│       └── epsilon
+└── $

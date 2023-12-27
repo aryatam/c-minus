@@ -1,0 +1,2 @@
+#5 : syntax error, missing C
+#7 : syntax error, illegal o
