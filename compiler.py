@@ -4,6 +4,7 @@ from typing import List, Optional, Set, Dict, Tuple, Union
 from anytree import Node, RenderTree
 import grammer
 
+epsilon = "epsilon"
 
 class State:
     def __init__(self, name: id):
@@ -278,7 +279,7 @@ class Scanner:
 
 class Parser:
     def __init__(self, scanner: Scanner):
-        self.nood = Node
+        self.root = None
         self.token = None
         self.scanner: Scanner = scanner
         self.LL1Stack = []
@@ -288,7 +289,7 @@ class Parser:
 
     def getToken(self):
         self.token = self.scanner.get_next_token()
-        if self.token[0] == "ID" or self.token == "NUM":
+        if self.token[0] == "ID" or self.token[0] == "NUM":
             self.CurrentTer = self.token[0]
         else:
             self.CurrentTer = self.token[1]
@@ -318,22 +319,31 @@ class Parser:
                         # add error missed terminal
 
     def Program(self):
-        self.nood = Node("Program")
+        self.root = Node("Program")
         if self.CurrentTer in self.grammar['first']['DeclarationList']:
-            self.LL1Stack.append(("$", self.nood))
-            self.LL1Stack.append((self.DeclarationList, self.nood))
+            self.LL1Stack.append(("$", self.root))
+            self.LL1Stack.append((self.DeclarationList, self.root))
         elif "epsilon" in self.grammar['first']['DeclarationList']:
             if self.CurrentTer in self.grammar['follow']['Program']:
-                self.LL1Stack.append(("$", self.nood))
-                self.LL1Stack.append((self.DeclarationList, self.nood))
+                self.LL1Stack.append(("$", self.root))
+                self.LL1Stack.append((self.DeclarationList, self.root))
         else:
             pass
             # error
 
-    def DeclarationList(self):
+    def DeclarationList(self, parent):
+        node = Node("DeclarationList", parent)
+        if self.CurrentTer in self.grammer["first"]["Declaration"]:
+            self.LL1Stack.append((self.DeclarationList, node))
+            self.LL1Stack.append((self.Declaration, node))
+        # epsilon rule is a terminal
+        elif self.CurrentTer in self.grammar["follow"]["DeclarationList"]:
+            Node(epsilon , node)
+        else:
+            pass
+            # error
 
-
-
+    def Declaration
 class Compiler:
     def __init__(self):
         self.scanner = Scanner()
