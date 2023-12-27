@@ -6,6 +6,7 @@ import grammer
 
 epsilon = "epsilon"
 
+
 class State:
     def __init__(self, name: id):
         self.id = name
@@ -279,6 +280,7 @@ class Scanner:
 
 class Parser:
     def __init__(self, scanner: Scanner):
+        self.name = " "
         self.root = None
         self.token = None
         self.scanner: Scanner = scanner
@@ -299,26 +301,27 @@ class Parser:
         # input first node Program
         self.Program()
         while len(self.LL1Stack):
-            pop = self.stack.pop()
-            # if it's not tuple its non-terminal
-            if callable(pop):
-                pop()
+            pop = self.LL1Stack.pop()
+            TerOrNotTer, parent = pop
+
+            if callable(TerOrNotTer):
+                TerOrNotTer(parent)
+
             else:
-                # if its tuple its terminal edge = value , parent = parent
-                edge, parent = pop
-                if edge == self.CurrentTer:
-                    lexeme = '$' if self.terminal == '$' else f"({self.current_token[0]}, {self.current_token[1]})"
+                if TerOrNotTer == self.CurrentTer:
+                    lexeme = '$' if self.CurrentTer == '$' else f"({self.token[0]}, {self.token[1]})"
                     Node(lexeme, parent)
                     self.next_token()
                 else:
                     if self.CurrentTer == '$':
                         # error unexpected eof
-                        self.LL1Stack = []
+                        self.LL1Stack.clear()
                     else:
                         pass
                         # add error missed terminal
 
     def Program(self):
+        self.name = "Program"
         self.root = Node("Program")
         if self.CurrentTer in self.grammar['first']['DeclarationList']:
             self.LL1Stack.append(("$", self.root))
@@ -332,18 +335,96 @@ class Parser:
             # error
 
     def DeclarationList(self, parent):
+        self.name = "DeclarationList"
         node = Node("DeclarationList", parent)
         if self.CurrentTer in self.grammer["first"]["Declaration"]:
             self.LL1Stack.append((self.DeclarationList, node))
             self.LL1Stack.append((self.Declaration, node))
         # epsilon rule is a terminal
         elif self.CurrentTer in self.grammar["follow"]["DeclarationList"]:
-            Node(epsilon , node)
+            Node(epsilon, node)
         else:
             pass
             # error
 
-    def Declaration
+    def Declaration(self, parent):
+        self.name = "Declaration"
+        node = Node("Declaration", parent)
+        if self.CurrentTer in self.grammar["first"]["DeclarationInitial"]:
+            self.LL1Stack.append((self.DeclarationPrime, node))
+            self.LL1Stack.append((self.DeclarationInitial, node))
+        else:
+            pass
+
+    def DeclarationInitial(self, parent):
+        self.name = "DeclarationInitial"
+        node = Node("DeclarationInitial", parent)
+        if self.CurrentTer in self.grammar["first"]["TypeSpecifier"]:
+            self.LL1Stack.append(("ID", node))
+            self.LL1Stack.append((self.TypeSpecifier, node))
+        else:
+            pass
+
+    def DeclarationPrime(self, parent):
+        self.name = "DeclarationPrime"
+        node = Node("DeclarationPrime", parent)
+        if self.CurrentTer in self.grammar["first"]["FunDeclarationPrime"]:
+            self.LL1Stack.append((self.FunDeclarationPrime, node))
+        elif self.CurrentTer in self.grammar["first"]["VarDeclarationPrime"]:
+            self.LL1Stack.append((self.VarDeclarationPrime, node))
+
+        else:
+            pass
+
+    def VarDeclarationPrime(self, parent):
+        self.name = "VarDeclarationPrime"
+        node = Node("VarDeclarationPrime", parent)
+        if self.CurrentTer is ';':
+            self.LL1Stack.append((";", node))
+        elif self.CurrentTer is '[':
+            self.LL1Stack.append((";", node))
+            self.LL1Stack.append(("]", node))
+            self.LL1Stack.append(("NUM", node))
+            self.LL1Stack.append(("[", node))
+        else:
+            pass
+
+    def FunDeclarationPrime(self, parent):
+        self.name = "FunDeclarationPrime"
+        node = Node("FunDeclarationPrime", parent)
+        if self.CurrentTer is '(':
+            self.LL1Stack.append((self.CompoundStmt, node))
+            self.LL1Stack.append((")", node))
+            self.LL1Stack.append((self.Params, node))
+            self.LL1Stack.append(("(", node))
+
+        else:
+            pass
+
+    def TypeSpecifier(self, parent):
+        self.name = "TypeSpecifier"
+        node = Node("TypeSpecifier", parent)
+        if self.CurrentTer is "int":
+            self.LL1Stack.append(("int", node))
+        elif self.CurrentTer is "void":
+            self.LL1Stack.append(("void", node))
+
+        else:
+            pass
+
+    def Params(self, parent):
+        self.name = "Params"
+        node = Node("Params", parent)
+        if self.CurrentTer is "int":
+            self.LL1Stack.append((self.ParamList, node))
+            self.LL1Stack.append((self.ParamPrime, node))
+            self.LL1Stack.append(("ID", node))
+            self.LL1Stack.append(("int", node))
+
+        elif self.CurrentTer is "void":
+            self.LL1Stack.append(("void", node))
+
+
 class Compiler:
     def __init__(self):
         self.scanner = Scanner()
