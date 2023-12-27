@@ -641,7 +641,8 @@ class Parser:
         self.name = "SimpleExpressionPrime"
         node = Node(self.name, parent)
 
-        if self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in self.grammar["follow"]["SimpleExpressionPrime"]:
+        if self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in \
+                self.grammar["follow"]["SimpleExpressionPrime"]:
             self.LL1Stack.append(("C", node))
             self.LL1Stack.append((self.AdditiveExpressionZegond, node))
 
@@ -651,7 +652,39 @@ class Parser:
     def C(self, parent):
         self.name = "C"
         node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Relop"]:
+            self.LL1Stack.append((self.AdditiveExpression, node))
+            self.LL1Stack.append((self.Relop, node))
 
+        elif self.CurrentTer in self.grammar["follow"]["C"]:
+            Node(epsilon, node)
+
+        else:
+            pass
+
+    def Relop(self, parent):
+        self.name = "Relop"
+        node = Node(self.name, parent)
+        if self.CurrentTer is "<":
+            self.LL1Stack.append(("<", node))
+        elif self.CurrentTer is "==":
+            self.LL1Stack.append(("==", node))
+
+        else:
+            pass
+
+    def AdditiveExpression(self, parent):
+        self.name = "AdditiveExpression"
+        node = Node(self.name, parent)
+        if self.CurrentTer in self.grammar["first"]["Relop"]:
+            self.LL1Stack.append((self.AdditiveExpression, node))
+            self.LL1Stack.append((self.Relop, node))
+
+        elif self.CurrentTer in self.grammar["follow"]["C"]:
+            Node(epsilon, node)
+
+        else:
+            pass
 class Compiler:
     def __init__(self):
         self.scanner = Scanner()
