@@ -133,7 +133,7 @@ class Scanner:
                 self.end_of_file = False
 
             if self.end_of_file and self.current_state.id == 0:
-                return 'None'
+                return '$', '$'
 
             self.matchStrings.append(self.current_char)
 
@@ -151,7 +151,7 @@ class Scanner:
                     self.current_state = self.state[0]
                 else:
                     self.error_handler(2)
-                    return 'None'
+                    return '$', '$'
 
     def add_error(self, error: Error):
         if error.line in self.errors_dict:
@@ -320,6 +320,7 @@ class Parser:
                 self.LL1Stack = [('', '')]
                 node.parent = None
             else:
+
                 self.addError(f"#{self.getLine()} : syntax error, illegal {self.CurrentTer}")
                 self.getToken()
                 parent = node.parent
@@ -333,22 +334,25 @@ class Parser:
         else:
             self.CurrentTer = self.token[1]
             self.CurrentTer = ''.join(self.CurrentTer)
-            print(self.CurrentTer)
 
     def parse(self):
         self.getToken()
+        print(self.CurrentTer)
         # input first node Program
         self.Program()
         while len(self.LL1Stack):
             pop = self.LL1Stack.pop()
             TerOrNotTer, parent = pop
-
+            print(TerOrNotTer)
             if callable(TerOrNotTer):
                 TerOrNotTer(parent)
 
             else:
+                print(self.CurrentTer)
+                print(TerOrNotTer)
                 if TerOrNotTer == self.CurrentTer:
-                    lexeme = '$' if self.CurrentTer == '$' else f"({self.token[0]}, {self.token[1]})"
+                    string = ''.join(self.token[1])
+                    lexeme = '$' if self.CurrentTer == '$' else f"({self.token[0]}, {string})"
                     Node(lexeme, parent)
                     self.getToken()
                 else:
@@ -526,7 +530,7 @@ class Parser:
             self.PanicError(self.name, self.StatementList, node)
 
     def Statement(self, parent):
-        self.name = "ExpressionStmt"
+        self.name = "Statement"
         node = Node(self.name, parent)
         if self.CurrentTer in self.grammar["first"]["ExpressionStmt"]:
             self.LL1Stack.append((self.ExpressionStmt, node))
@@ -667,7 +671,7 @@ class Parser:
         node = Node(self.name, parent)
 
         if self.CurrentTer in self.grammar["first"]["AdditiveExpressionZegond"]:
-            self.LL1Stack.append(("C", node))
+            self.LL1Stack.append((self.C, node))
             self.LL1Stack.append((self.AdditiveExpressionZegond, node))
 
         else:
@@ -679,7 +683,7 @@ class Parser:
 
         if self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in \
                 self.grammar["follow"]["SimpleExpressionPrime"]:
-            self.LL1Stack.append(("C", node))
+            self.LL1Stack.append((self.D, node))
             self.LL1Stack.append((self.AdditiveExpressionZegond, node))
 
         else:
@@ -745,7 +749,7 @@ class Parser:
             self.PanicError(self.name, self.AdditiveExpressionZegond, node)
 
     def D(self, parent):
-        self.name = "Addop"
+        self.name = "D"
         node = Node(self.name, parent)
         if self.CurrentTer in self.grammar["first"]["Addop"]:
             self.LL1Stack.append((self.D, node))

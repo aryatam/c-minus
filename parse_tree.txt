@@ -3,49 +3,51 @@ Program
 │   ├── Declaration
 │   │   ├── DeclarationInitial
 │   │   │   ├── TypeSpecifier
-│   │   │   │   └── (KEYWORD, ['v', 'o', 'i', 'd'])
-│   │   │   └── (ID, ['m', 'a', 'i', 'n'])
+│   │   │   │   └── (KEYWORD, void)
+│   │   │   └── (ID, main)
 │   │   └── DeclarationPrime
 │   │       └── FunDeclarationPrime
-│   │           ├── (SYMBOL, ['('])
+│   │           ├── (SYMBOL, ()
 │   │           ├── Params
-│   │           │   └── (KEYWORD, ['v', 'o', 'i', 'd'])
-│   │           ├── (SYMBOL, [')'])
+│   │           │   └── (KEYWORD, void)
+│   │           ├── (SYMBOL, ))
 │   │           └── CompoundStmt
-│   │               ├── (SYMBOL, ['{'])
+│   │               ├── (SYMBOL, {)
 │   │               ├── DeclarationList
 │   │               │   ├── Declaration
 │   │               │   │   ├── DeclarationInitial
 │   │               │   │   │   ├── TypeSpecifier
-│   │               │   │   │   │   └── (KEYWORD, ['i', 'n', 't'])
-│   │               │   │   │   └── (ID, ['x'])
+│   │               │   │   │   │   └── (KEYWORD, int)
+│   │               │   │   │   └── (ID, x)
 │   │               │   │   └── DeclarationPrime
 │   │               │   │       └── VarDeclarationPrime
-│   │               │   │           └── (SYMBOL, [';'])
+│   │               │   │           └── (SYMBOL, ;)
 │   │               │   └── DeclarationList
 │   │               │       └── epsilon
 │   │               ├── StatementList
-│   │               │   ├── ExpressionStmt
+│   │               │   ├── Statement
 │   │               │   │   └── ExpressionStmt
 │   │               │   │       ├── Expression
-│   │               │   │       │   ├── (ID, ['x'])
+│   │               │   │       │   ├── (ID, x)
 │   │               │   │       │   └── B
-│   │               │   │       │       ├── (SYMBOL, ['='])
+│   │               │   │       │       ├── (SYMBOL, =)
 │   │               │   │       │       └── Expression
 │   │               │   │       │           └── SimpleExpressionZegond
-│   │               │   │       │               └── AdditiveExpressionZegond
-│   │               │   │       │                   ├── TermZegond
-│   │               │   │       │                   │   ├── SignedFactorZegond
-│   │               │   │       │                   │   │   └── FactorZegond
-│   │               │   │       │                   │   │       └── (NUM, ['1', '0'])
-│   │               │   │       │                   │   └── G
-│   │               │   │       │                   │       └── epsilon
-│   │               │   │       │                   └── Addop
-│   │               │   │       │                       └── epsilon
-│   │               │   │       └── (SYMBOL, [';'])
+│   │               │   │       │               ├── AdditiveExpressionZegond
+│   │               │   │       │               │   ├── TermZegond
+│   │               │   │       │               │   │   ├── SignedFactorZegond
+│   │               │   │       │               │   │   │   └── FactorZegond
+│   │               │   │       │               │   │   │       └── (NUM, 10)
+│   │               │   │       │               │   │   └── G
+│   │               │   │       │               │   │       └── epsilon
+│   │               │   │       │               │   └── D
+│   │               │   │       │               │       └── epsilon
+│   │               │   │       │               └── C
+│   │               │   │       │                   └── epsilon
+│   │               │   │       └── (SYMBOL, ;)
 │   │               │   └── StatementList
 │   │               │       └── epsilon
-│   │               └── (SYMBOL, ['}'])
+│   │               └── (SYMBOL, })
 │   └── DeclarationList
 │       └── epsilon
 └── $

@@ -87,7 +87,7 @@ first = {
     "DeclarationInitial": [
         "int", "void"
     ],
-    "Declaration-prime": [
+    "DeclarationPrime": [
         ";", "[", "("
     ],
     "VarDeclarationPrime": [
@@ -254,7 +254,9 @@ first = {
     "ArgList": [
         "ID", "NUM", "(", "+", "-"
     ],
-    "ArgListPrime": [",", "epsilon"]
+    "ArgListPrime": [
+        ",", "epsilon"
+    ]
 }
 
 follow = {
