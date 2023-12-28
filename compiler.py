@@ -312,6 +312,7 @@ class Parser:
         return self.LineParser
 
     def PanicError(self, name, method, node):
+
         if self.CurrentTer in self.grammar["follow"][name]:
             self.addError(f"#{self.getLine()} : syntax error, missing {name}")
             node.parent = None
@@ -337,13 +338,15 @@ class Parser:
 
     def parse(self):
         self.getToken()
-        print(self.CurrentTer)
+
+
         # input first node Program
         self.Program()
         while len(self.LL1Stack):
+
             pop = self.LL1Stack.pop()
             TerOrNotTer, parent = pop
-            print(TerOrNotTer)
+
             if callable(TerOrNotTer):
                 TerOrNotTer(parent)
 
@@ -358,7 +361,7 @@ class Parser:
                 else:
                     if self.CurrentTer == '$':
                         self.addError(f"#{self.scanner.line} : syntax error, Unexpected EOF")
-                        self.LL1Stack.clear()
+                        self.LL1Stack = []
                     else:
                         self.addError(f"#{self.scanner.line} : syntax error, missing {TerOrNotTer}")
 
@@ -381,7 +384,7 @@ class Parser:
         if self.CurrentTer in self.grammar["first"]["Declaration"]:
             self.LL1Stack.append((self.DeclarationList, node))
             self.LL1Stack.append((self.Declaration, node))
-        # epsilon rule is a terminal
+
         elif self.CurrentTer in self.grammar["follow"]["DeclarationList"]:
             Node(epsilon, node)
         else:
@@ -642,8 +645,7 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
             self.LL1Stack.append(("[", node))
 
-        elif self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in \
-                self.grammar["follow"]["B"]:
+        elif self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in self.grammar["follow"]["B"]:
             self.LL1Stack.append((self.SimpleExpressionPrime, node))
 
         else:
@@ -657,8 +659,7 @@ class Parser:
             self.LL1Stack.append((self.Expression, node))
             self.LL1Stack.append(("=", node))
 
-        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"][
-            "D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
+        if self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["first"]["D"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["H"]:
             self.LL1Stack.append((self.C, node))
             self.LL1Stack.append((self.D, node))
             self.LL1Stack.append((self.G, node))
@@ -681,10 +682,9 @@ class Parser:
         self.name = "SimpleExpressionPrime"
         node = Node(self.name, parent)
 
-        if self.CurrentTer in self.grammar["first"]["SimpleExpressionPrime"] or self.CurrentTer in \
-                self.grammar["follow"]["SimpleExpressionPrime"]:
-            self.LL1Stack.append((self.D, node))
-            self.LL1Stack.append((self.AdditiveExpressionZegond, node))
+        if self.CurrentTer in self.grammar["first"]["AdditiveExpressionPrime"] or self.CurrentTer in self.grammar["first"]["C"] or self.CurrentTer in self.grammar["follow"]["SimpleExpressionPrime"]:
+            self.LL1Stack.append((self.C, node))
+            self.LL1Stack.append((self.AdditiveExpressionPrime, node))
 
         else:
             self.PanicError(self.name, self.SimpleExpressionPrime, node)
@@ -713,7 +713,7 @@ class Parser:
         else:
             self.PanicError(self.name, self.Relop, node)
 
-    # not done yet
+
     def AdditiveExpression(self, parent):
         self.name = "AdditiveExpression"
         node = Node(self.name, parent)
@@ -729,8 +729,7 @@ class Parser:
         self.name = "AdditiveExpressionPrime"
         node = Node(self.name, parent)
 
-        if self.CurrentTer in self.grammar["first"]["TermPrime"] or self.CurrentTer in self.grammar["first"][
-            "D"] or self.CurrentTer in self.grammar["follow"]["AdditiveExpressionPrime"]:
+        if self.CurrentTer in self.grammar["first"]["TermPrime"] or self.CurrentTer in self.grammar["first"]["D"] or self.CurrentTer in self.grammar["follow"]["AdditiveExpressionPrime"]:
             self.LL1Stack.append((self.D, node))
             self.LL1Stack.append((self.TermPrime, node))
 
@@ -785,8 +784,7 @@ class Parser:
     def TermPrime(self, parent):
         self.name = "TermPrime"
         node = Node(self.name, parent)
-        if self.CurrentTer in self.grammar["first"]["SignedFactorPrime"] or self.CurrentTer in self.grammar["first"][
-            "G"] or self.CurrentTer in self.grammar["follow"]["TermPrime"]:
+        if self.CurrentTer in self.grammar["first"]["SignedFactorPrime"] or self.CurrentTer in self.grammar["first"]["G"] or self.CurrentTer in self.grammar["follow"]["TermPrime"]:
             self.LL1Stack.append((self.G, node))
             self.LL1Stack.append((self.SignedFactorPrime, node))
         else:
@@ -833,8 +831,7 @@ class Parser:
     def SignedFactorPrime(self, parent):
         self.name = "SignedFactorPrime"
         node = Node(self.name, parent)
-        if self.CurrentTer in self.grammar["first"]["FactorPrime"] or self.CurrentTer in self.grammar["follow"][
-            "SignedFactorPrime"]:
+        if self.CurrentTer in self.grammar["first"]["FactorPrime"] or self.CurrentTer in self.grammar["follow"]["SignedFactorPrime"]:
             self.LL1Stack.append((self.FactorPrime, node))
 
         else:
@@ -881,8 +878,7 @@ class Parser:
             self.LL1Stack.append((self.Args, node))
             self.LL1Stack.append(("(", node))
 
-        elif self.CurrentTer in self.grammar["first"]["VarPrime"] or self.CurrentTer in self.grammar["follow"][
-            "VarCallPrime"]:
+        elif self.CurrentTer in self.grammar["first"]["VarPrime"] or self.CurrentTer in self.grammar["follow"]["VarCallPrime"]:
             self.LL1Stack.append((self.VarPrime, node))
 
         else:
